@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+          xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+          mc:Ignorable="w14 w15">
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Arabic-Normal">
+        <w:name w:val="Arabic-Normal"/>
+        <w:basedOn w:val="Normal"/>
+        <w:link w:val="Arabic-NormalChar"/>
+        <w:qFormat/>
+        <w:rsid w:val="0004111F"/>
+        <w:pPr>
+            <w:bidi/>
+        </w:pPr>
+        <w:rPr>
+            <w:rFonts w:ascii="Traditional Arabic" w:hAnsi="Traditional Arabic" w:cs="Traditional Arabic"/>
+            <w:sz w:val="40"/>
+            <w:szCs w:val="40"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:customStyle="1" w:styleId="Arabic-NormalChar">
+        <w:name w:val="Arabic-Normal Char"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:link w:val="Arabic-Normal"/>
+        <w:rsid w:val="0004111F"/>
+        <w:rPr>
+            <w:rFonts w:ascii="Traditional Arabic" w:hAnsi="Traditional Arabic" w:cs="Traditional Arabic"/>
+            <w:sz w:val="40"/>
+            <w:szCs w:val="40"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Arabic-Table-Center">
+        <w:name w:val="Arabic-Table-Center"/>
+        <w:basedOn w:val="Arabic-Normal"/>
+        <w:link w:val="Arabic-Table-CenterChar"/>
+        <w:qFormat/>
+        <w:rsid w:val="00B94679"/>
+        <w:pPr>
+            <w:spacing w:before="120" w:after="120" w:line="240" w:lineRule="auto"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Arabic-Caption">
+        <w:name w:val="Arabic-Caption"/>
+        <w:basedOn w:val="Arabic-Table-Center"/>
+        <w:link w:val="Arabic-CaptionChar"/>
+        <w:qFormat/>
+        <w:rsid w:val="00141798"/>
+        <w:pPr>
+            <w:bidi w:val="0"/>
+        </w:pPr>
+        <w:rPr>
+            <w:b/>
+            <w:bCs/>
+            <w:color w:val="2E74B5" w:themeColor="accent1" w:themeShade="BF"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:customStyle="1" w:styleId="Arabic-Table-CenterChar">
+        <w:name w:val="Arabic-Table-Center Char"/>
+        <w:basedOn w:val="Arabic-NormalChar"/>
+        <w:link w:val="Arabic-Table-Center"/>
+        <w:rsid w:val="00B94679"/>
+        <w:rPr>
+            <w:rFonts w:ascii="Traditional Arabic" w:hAnsi="Traditional Arabic" w:cs="Traditional Arabic"/>
+            <w:sz w:val="40"/>
+            <w:szCs w:val="40"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:customStyle="1" w:styleId="Arabic-CaptionChar">
+        <w:name w:val="Arabic-Caption Char"/>
+        <w:basedOn w:val="Arabic-Table-CenterChar"/>
+        <w:link w:val="Arabic-Caption"/>
+        <w:rsid w:val="00141798"/>
+        <w:rPr>
+            <w:rFonts w:ascii="Traditional Arabic" w:hAnsi="Traditional Arabic" w:cs="Traditional Arabic"/>
+            <w:b/>
+            <w:bCs/>
+            <w:color w:val="2E74B5" w:themeColor="accent1" w:themeShade="BF"/>
+            <w:sz w:val="40"/>
+            <w:szCs w:val="40"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Arabic-Heading1">
+        <w:name w:val="Arabic-Heading1"/>
+        <w:basedOn w:val="Heading1"/>
+        <w:link w:val="Arabic-Heading1Char"/>
+        <w:qFormat/>
+        <w:rsid w:val="002D29F2"/>
+        <w:pPr>
+            <w:bidi/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:rFonts w:ascii="Traditional Arabic" w:hAnsi="Traditional Arabic" w:cs="Traditional Arabic"/>
+            <w:sz w:val="72"/>
+            <w:szCs w:val="72"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:customStyle="1" w:styleId="Arabic-Heading1Char">
+        <w:name w:val="Arabic-Heading1 Char"/>
+        <w:link w:val="Arabic-Heading1"/>
+        <w:rsid w:val="002D29F2"/>
+        <w:rPr>
+            <w:rFonts w:ascii="Traditional Arabic" w:eastAsiaTheme="majorEastAsia" w:hAnsi="Traditional Arabic"
+                      w:cs="Traditional Arabic"/>
+            <w:b/>
+            <w:bCs/>
+            <w:color w:val="2E74B5" w:themeColor="accent1" w:themeShade="BF"/>
+            <w:sz w:val="72"/>
+            <w:szCs w:val="72"/>
+        </w:rPr>
+    </w:style>
+</w:styles>
