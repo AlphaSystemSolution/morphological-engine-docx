@@ -39,6 +39,9 @@
                 <configuration>
                     <systemProperties>
                         <target.dir>${project.build.directory}</target.dir>
+                        <arabic.font.name>KFGQPC Uthman Taha Naskh</arabic.font.name>
+                        <arabic.normal.font.size>32</arabic.normal.font.size>
+                        <arabic.heading.font.size>60</arabic.heading.font.size>
                     </systemProperties>
                 </configuration>
             </plugin>
