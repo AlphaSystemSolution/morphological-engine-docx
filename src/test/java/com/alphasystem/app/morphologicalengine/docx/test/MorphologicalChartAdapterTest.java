@@ -8,7 +8,7 @@ import com.alphasystem.app.morphologicalengine.conjugation.model.MorphologicalCh
 import com.alphasystem.app.morphologicalengine.conjugation.model.NounRootBase;
 import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationAdapter;
 import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationAdapter;
-import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartAdapter;
+import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngine;
 import com.alphasystem.app.morphologicalengine.guice.GuiceSupport;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -58,9 +58,9 @@ public class MorphologicalChartAdapterTest {
     public void testCreateEmptyDocument() {
         final Path path = get(parentDocDir.toString(), "mydoc.docx");
         log(format("File Path: %s", path), true);
-        MorphologicalChartAdapter morphologicalChartAdapter = new MorphologicalChartAdapter(null, null);
+        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine(null, null);
         try {
-            morphologicalChartAdapter.createDocument(path);
+            morphologicalChartEngine.createDocument(path);
             Assert.assertEquals(Files.exists(path), true);
         } catch (Docx4JException e) {
             fail(format("Failed to create document {%s}", path), e);
@@ -71,9 +71,9 @@ public class MorphologicalChartAdapterTest {
     public void runConjugationBuilder() {
         MorphologicalChart[] charts = getCharts(null);
         final Path path = get(parentDocDir.toString(), "conjugations.docx");
-        MorphologicalChartAdapter morphologicalChartAdapter = new MorphologicalChartAdapter(charts);
+        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine(charts);
         try {
-            morphologicalChartAdapter.createDocument(path);
+            morphologicalChartEngine.createDocument(path);
         } catch (Docx4JException e) {
             fail(format("Failed to create document {%s}", path), e);
         }

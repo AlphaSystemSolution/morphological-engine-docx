@@ -15,7 +15,7 @@ import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 /**
  * @author sali
  */
-public class MorphologicalChartAdapter extends DocumentAdapter implements Callable<Boolean> {
+public class MorphologicalChartEngine extends DocumentAdapter implements Callable<Boolean> {
 
     private final Path path;
     private final ChartConfiguration chartConfiguration;
@@ -26,7 +26,7 @@ public class MorphologicalChartAdapter extends DocumentAdapter implements Callab
      *
      * @param charts {@link MorphologicalChart} given charts.
      */
-    public MorphologicalChartAdapter(MorphologicalChart... charts) {
+    public MorphologicalChartEngine(MorphologicalChart... charts) {
         this(null, charts);
     }
 
@@ -36,7 +36,7 @@ public class MorphologicalChartAdapter extends DocumentAdapter implements Callab
      * @param chartConfiguration {@link ChartConfiguration} to how document to be rendered.
      * @param charts             {@link MorphologicalChart} given charts.
      */
-    public MorphologicalChartAdapter(ChartConfiguration chartConfiguration, MorphologicalChart... charts) {
+    public MorphologicalChartEngine(ChartConfiguration chartConfiguration, MorphologicalChart... charts) {
         this(null, chartConfiguration, charts);
     }
 
@@ -47,7 +47,7 @@ public class MorphologicalChartAdapter extends DocumentAdapter implements Callab
      * @param chartConfiguration {@link ChartConfiguration} to how document to be rendered.
      * @param charts             {@link MorphologicalChart} given charts.
      */
-    public MorphologicalChartAdapter(Path path, ChartConfiguration chartConfiguration, MorphologicalChart... charts) {
+    public MorphologicalChartEngine(Path path, ChartConfiguration chartConfiguration, MorphologicalChart... charts) {
         this.path = path;
         this.chartConfiguration = (chartConfiguration == null) ? new ChartConfiguration() : chartConfiguration;
         this.charts = charts;
