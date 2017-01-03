@@ -36,7 +36,7 @@ import static org.testng.Reporter.log;
 /**
  * @author sali
  */
-public class MorphologicalChartAdapterTest {
+public class MorphologicalChartEngineTest {
 
     private static final NounRootBase[] FORM_I_ADVERBS = new NounRootBase[]{
             new NounRootBase(NOUN_OF_PLACE_AND_TIME_V1, BROKEN_PLURAL_V12),

@@ -3,7 +3,7 @@
 <suite name="Suite">
     <test name="Test" preserve-order="true">
         <classes>
-            <class name="com.alphasystem.app.morphologicalengine.docx.test.MorphologicalChartAdapterTest"/>
+            <class name="com.alphasystem.app.morphologicalengine.docx.test.MorphologicalChartEngineTest"/>
         </classes>
     </test>
     <!-- Test -->
