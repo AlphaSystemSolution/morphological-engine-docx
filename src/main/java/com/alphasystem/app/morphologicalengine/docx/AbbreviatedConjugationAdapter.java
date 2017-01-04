@@ -128,12 +128,12 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
             RootLetters rootLetters = conjugationHeader.getRootLetters();
             if (rootLetters != null) {
                 ArabicWord[] rl = new ArabicWord[3];
-                rl[0] = rootLetters.getFirstRadical().getLabel();
-                rl[1] = rootLetters.getSecondRadical().getLabel();
-                rl[2] = rootLetters.getThirdRadical().getLabel();
+                rl[0] = rootLetters.getFirstRadical().toLabel();
+                rl[1] = rootLetters.getSecondRadical().toLabel();
+                rl[2] = rootLetters.getThirdRadical().toLabel();
                 final ArabicLetterType fourthRadical = rootLetters.getFourthRadical();
                 if (fourthRadical != null) {
-                    rl = ArrayUtils.add(rl, fourthRadical.getLabel());
+                    rl = ArrayUtils.add(rl, fourthRadical.toLabel());
                 }
                 result = concatenateWithSpace(rl).toUnicode();
             }

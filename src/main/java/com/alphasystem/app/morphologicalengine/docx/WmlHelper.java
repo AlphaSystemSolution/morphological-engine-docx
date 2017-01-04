@@ -77,9 +77,9 @@ public final class WmlHelper {
     public static ArabicWord getMultiWord(RootWord[] words) {
         ArabicWord w = WORD_SPACE;
         if (isNotEmpty(words)) {
-            w = words[0].getLabel();
+            w = words[0].toLabel();
             for (int i = 1; i < words.length; i++) {
-                w = concatenateWithAnd(w, words[i].getLabel());
+                w = concatenateWithAnd(w, words[i].toLabel());
             }
         }
         return w;
@@ -102,7 +102,7 @@ public final class WmlHelper {
         PPr ppr = getPPrBuilder().withPStyle(pStyle).getObject();
         final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
         RPr rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
-        ArabicWord word = (value == null) ? WORD_SPACE : value.getLabel();
+        ArabicWord word = (value == null) ? WORD_SPACE : value.toLabel();
         if (prefix != null) {
             word = concatenateWithSpace(prefix, word);
         }
