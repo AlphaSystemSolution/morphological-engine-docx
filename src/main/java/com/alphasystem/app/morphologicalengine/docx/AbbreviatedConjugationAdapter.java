@@ -34,10 +34,6 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
     private final AbbreviatedConjugation[] abbreviatedConjugations;
     private final TableAdapter tableAdapter;
 
-    public AbbreviatedConjugationAdapter(AbbreviatedConjugation... abbreviatedConjugations) {
-        this(null, abbreviatedConjugations);
-    }
-
     public AbbreviatedConjugationAdapter(ChartConfiguration chartConfiguration, AbbreviatedConjugation... abbreviatedConjugations) {
         this.chartConfiguration = (chartConfiguration == null) ? new ChartConfiguration() : chartConfiguration;
         this.abbreviatedConjugations = isEmpty(abbreviatedConjugations) ? new AbbreviatedConjugation[0] : abbreviatedConjugations;
@@ -72,7 +68,11 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
 
         final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
         final RPr rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
-        final Text text = getText(getTitleWord(abbreviatedConjugation.getActiveLine()).toUnicode());
+        final ConjugationHeader conjugationHeader = abbreviatedConjugation.getConjugationHeader();
+        ArabicWord titleWord = (conjugationHeader == null) ? null : conjugationHeader.getTitle();
+        titleWord = titleWord == null ? getTitleWord(abbreviatedConjugation.getActiveLine()) : titleWord;
+        final String title = (titleWord == null) ? "" : titleWord.toUnicode();
+        final Text text = getText(title);
         final R r = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
 
         final ParaRPr paraRPr = getParaRPrBuilder().getObject();
@@ -89,9 +89,6 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
         String rsidR = nextId();
         String rsidP = nextId();
 
-        // Root Word
-        P rootWordsPara = getRootWordsPara(rsidR, rsidP, conjugationHeader);
-
         // translation
         P translationPara = getTranslationPara(rsidR, rsidP, conjugationHeader.getTranslation());
 
@@ -102,7 +99,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
         P labelP3 = getHeaderLabelPara(rsidR, rsidRpr, rsidP, conjugationHeader.getTypeLabel3());
 
         tableAdapter.startRow()
-                .addColumn(0, 2, null, rootWordsPara, translationPara)
+                .addColumn(0, 2, null, translationPara)
                 .addColumn(2, 2, null, labelP1, labelP2, labelP3).endRow();
     }
 

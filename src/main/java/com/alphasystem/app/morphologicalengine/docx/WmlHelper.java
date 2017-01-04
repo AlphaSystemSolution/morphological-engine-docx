@@ -20,32 +20,31 @@ import static org.docx4j.wml.STHint.CS;
 /**
  * @author sali
  */
-public final class WmlHelper {
+final class WmlHelper {
 
-    public static final String ARABIC_HEADING_STYLE = "Arabic-Heading1";
-    public static final String ARABIC_NORMAL_STYLE = "Arabic-Normal";
-    public static final String ARABIC_CAPTION_STYLE = "Arabic-Caption";
-    public static final String ARABIC_TABLE_CENTER_STYLE = "Arabic-Table-Center";
-    public static final String TRANSLATION_STYLE = "Georgia";
-    public static final String NO_SPACING_STYLE = "NoSpacing";
-    public static final ArabicWord COMMAND_PREFIX = getWord(ALIF, LAM, ALIF_HAMZA_ABOVE, MEEM, RA, SPACE, MEEM, NOON, HA);
-    public static final ArabicWord FORBIDDING_PREFIX = getWord(WAW, NOON, HA, YA, SPACE, AIN, NOON, HA);
-    public static final ArabicWord ADVERB_PREFIX = getWord(WAW, ALIF, LAM, DTHA, RA, FA, SPACE, MEEM, NOON, HA);
-    public static final Long SIZE_56 = 56L;
-    public static final Long SIZE_32 = 32L;
+    static final String ARABIC_HEADING_STYLE = "Arabic-Heading1";
+    static final String ARABIC_NORMAL_STYLE = "Arabic-Normal";
+    static final String ARABIC_CAPTION_STYLE = "Arabic-Caption";
+    private static final String ARABIC_TABLE_CENTER_STYLE = "Arabic-Table-Center";
+    static final String TRANSLATION_STYLE = "Georgia";
+    private static final String NO_SPACING_STYLE = "NoSpacing";
+    static final ArabicWord COMMAND_PREFIX = getWord(ALIF, LAM, ALIF_HAMZA_ABOVE, MEEM, RA, SPACE, MEEM, NOON, HA);
+    static final ArabicWord FORBIDDING_PREFIX = getWord(WAW, NOON, HA, YA, SPACE, AIN, NOON, HA);
+    static final ArabicWord ADVERB_PREFIX = getWord(WAW, ALIF, LAM, DTHA, RA, FA, SPACE, MEEM, NOON, HA);
+    static final Long SIZE_56 = 56L;
+    static final Long SIZE_32 = 32L;
 
-    public static void addSeparatorRow(TableAdapter tableAdapter, Integer gridSpan) {
+    static void addSeparatorRow(TableAdapter tableAdapter, Integer gridSpan) {
         final TcPr tcPr = getTcPrBuilder().withTcBorders(getNilBorders()).getObject();
         tableAdapter.startRow()
                 .addColumn(0, gridSpan, tcPr, createNoSpacingStyleP())
                 .endRow();
     }
 
-    public static P createNoSpacingStyleP() {
+    static P createNoSpacingStyleP() {
         PPr ppr = getPPrBuilder().withPStyle(NO_SPACING_STYLE).getObject();
-        P p = getPBuilder().withRsidR(nextId()).withRsidP(nextId())
+        return getPBuilder().withRsidR(nextId()).withRsidP(nextId())
                 .withRsidRDefault(nextId()).withPPr(ppr).getObject();
-        return p;
     }
 
     /**
@@ -53,10 +52,10 @@ public final class WmlHelper {
      * person singular masculine past tense (space> third person singular
      * masculine present tense.
      *
-     * @param activeLine
-     * @return
+     * @param activeLine active line
+     * @return title {@link ArabicWord}
      */
-    public static ArabicWord getTitleWord(ActiveLine activeLine) {
+    static ArabicWord getTitleWord(ActiveLine activeLine) {
         ArabicWord pastTense = WORD_SPACE;
         ArabicWord presentTense = WORD_SPACE;
         if (activeLine != null) {
@@ -74,7 +73,7 @@ public final class WmlHelper {
         return concatenateWithSpace(pastTense, presentTense);
     }
 
-    public static ArabicWord getMultiWord(RootWord[] words) {
+    static ArabicWord getMultiWord(RootWord[] words) {
         ArabicWord w = WORD_SPACE;
         if (isNotEmpty(words)) {
             w = words[0].toLabel();
@@ -85,19 +84,19 @@ public final class WmlHelper {
         return w;
     }
 
-    public static P getArabicTextP(ArabicSupport value) {
+    static P getArabicTextP(ArabicSupport value) {
         return getArabicTextP(null, value, ARABIC_TABLE_CENTER_STYLE);
     }
 
-    public static P getArabicTextP(ArabicWord prefix, ArabicSupport value) {
+    static P getArabicTextP(ArabicWord prefix, ArabicSupport value) {
         return getArabicTextP(prefix, value, ARABIC_TABLE_CENTER_STYLE);
     }
 
-    public static P getArabicTextP(ArabicSupport value, String pStyle) {
+    static P getArabicTextP(ArabicSupport value, String pStyle) {
         return getArabicTextP(null, value, pStyle);
     }
 
-    public static P getArabicTextP(ArabicWord prefix, ArabicSupport value, String pStyle) {
+    private static P getArabicTextP(ArabicWord prefix, ArabicSupport value, String pStyle) {
         String rsidr = nextId();
         PPr ppr = getPPrBuilder().withPStyle(pStyle).getObject();
         final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
@@ -113,7 +112,7 @@ public final class WmlHelper {
                 .getObject();
     }
 
-    public static TcPr getNilBorderColumnProperties() {
+    static TcPr getNilBorderColumnProperties() {
         return getTcPrBuilder().withTcBorders(getNilBorders()).getObject();
     }
 }
