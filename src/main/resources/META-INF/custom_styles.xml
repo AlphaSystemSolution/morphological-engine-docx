@@ -109,4 +109,19 @@
             <w:szCs w:val="72"/>
         </w:rPr>
     </w:style>
+    <w:style w:customStyle="1" w:type="paragraph" w:styleId="TOCArabic">
+        <w:name w:val="toc arabic"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:autoRedefine/>
+        <w:uiPriority w:val="39"/>
+        <w:unhideWhenUsed/>
+        <w:rsid w:val="000B12DB"/>
+        <w:pPr>
+            <w:spacing w:after="100"/>
+        </w:pPr>
+        <w:rPr>
+            <w:rFonts w:cs="KFGQPC Uthman Taha Naskh"/>
+        </w:rPr>
+    </w:style>
 </w:styles>

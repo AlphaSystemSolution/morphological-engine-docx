@@ -4,6 +4,7 @@ import com.alphasystem.openxml.builder.wml.PPrBuilder;
 import com.alphasystem.openxml.builder.wml.StylesBuilder;
 import com.alphasystem.openxml.builder.wml.WmlBuilderFactory;
 import com.alphasystem.openxml.builder.wml.WmlPackageBuilder;
+import com.alphasystem.util.IdGenerator;
 import javafx.scene.text.Font;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -60,7 +61,8 @@ public abstract class DocumentAdapter {
         return stylesBuilder.addStyle(createArabicNormalStyle(family, normalSize), createArabicNormalCharStyle(family, normalSize),
                 createArabicTableCenterStyle(), createArabicTableCenterCharStyle(family, normalSize),
                 createArabicTableCaptionStyle(), createArabicTableCaptionCharStyle(family, normalSize),
-                createArabicHeading1Style(family, headingSize), createArabicHeading1CharStyle(family, headingSize)).getObject();
+                createArabicHeading1Style(family, headingSize), createArabicHeading1CharStyle(family, headingSize),
+                createArabicTocStyle(family)).getObject();
     }
 
     private Style createArabicNormalStyle(String family, long size) {
@@ -133,6 +135,18 @@ public abstract class DocumentAdapter {
         return getStyleBuilder().withType("character").withStyleId("Arabic-Heading1Char").withCustomStyle(true)
                 .withName("Arabic-Heading1 Char").withLink("Arabic-Heading1")
                 .withRsid("002D29F2").withRPr(rpr).getObject();
+    }
+
+    private Style createArabicTocStyle(String family) {
+        CTTabStop tab = WmlBuilderFactory.getCTTabStopBuilder().withVal(STTabJc.RIGHT).withLeader(STTabTlc.DOT)
+                .withPos(9017L).getObject();
+        Tabs tabs = WmlBuilderFactory.getTabsBuilder().addTab(tab).getObject();
+        PPr ppr = getPPrBuilder().withTabs(tabs).getObject();
+        RFonts rFonts = getRFontsBuilder().withCs(family).getObject();
+        RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
+        return getStyleBuilder().withType("paragraph").withStyleId("TOCArabic").withCustomStyle(true)
+                .withName("TOC Arabic").withBasedOn("TOC1").withQFormat(true).withRsid(IdGenerator.nextId())
+                .withPPr(ppr).withRPr(rpr).getObject();
     }
 
     protected abstract void buildDocument(MainDocumentPart mdp);

@@ -6,8 +6,7 @@ import com.alphasystem.app.morphologicalengine.conjugation.model.MorphologicalCh
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationTemplate;
-import com.alphasystem.openxml.builder.wml.WmlAdapter;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
+import com.alphasystem.openxml.builder.wml.TocGenerator;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 
 import java.nio.file.Path;
@@ -59,11 +58,9 @@ public class MorphologicalChartEngine extends DocumentAdapter implements Callabl
         }
         final ChartConfiguration chartConfiguration = conjugationTemplate.getChartConfiguration();
         if (!chartConfiguration.isOmitAbbreviatedConjugation() && !chartConfiguration.isOmitToc()) {
-            try {
-                WmlAdapter.addTableOfContent(mdp, "Table Of Contents", " TOC \\o \"1-3\" \\h \\z \\t \"Arabic-Heading1,1\" ");
-            } catch (Docx4JException e) {
-                e.printStackTrace();
-            }
+            TocGenerator tocGenerator = new TocGenerator().tocHeading("Table of Contents").mainDocumentPart(mdp)
+                    .instruction(" TOC \\o \"1-3\" \\h \\z \\t \"Arabic-Heading1,1\" ").tocStyle("TOCArabic");
+            tocGenerator.generateToc();
         }
         final List<MorphologicalChart> charts = createMorphologicalCharts();
         charts.forEach(morphologicalChart -> addToDocument(mdp, chartConfiguration, morphologicalChart));
