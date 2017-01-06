@@ -62,7 +62,8 @@ public abstract class DocumentAdapter {
                 createArabicTableCenterStyle(), createArabicTableCenterCharStyle(family, normalSize),
                 createArabicTableCaptionStyle(), createArabicTableCaptionCharStyle(family, normalSize),
                 createArabicHeading1Style(family, headingSize), createArabicHeading1CharStyle(family, headingSize),
-                createArabicTocStyle(family)).getObject();
+                createArabicTocStyle(family), createArabicPrefixCharStyle(family, 24),
+                createArabicPrefixParagraphStyle(family, 24)).getObject();
     }
 
     private Style createArabicNormalStyle(String family, long size) {
@@ -147,6 +148,24 @@ public abstract class DocumentAdapter {
         return getStyleBuilder().withType("paragraph").withStyleId("TOCArabic").withCustomStyle(true)
                 .withName("TOC Arabic").withBasedOn("TOC1").withQFormat(true).withRsid(IdGenerator.nextId())
                 .withPPr(ppr).withRPr(rpr).getObject();
+    }
+
+    private Style createArabicPrefixCharStyle(String family, long size) {
+        RFonts rFonts = getRFontsBuilder().withAscii(family).withHAnsi(family).withCs(family).getObject();
+        Color color = getColorBuilder().withVal("C00000").getObject();
+        RPr rpr = getRPrBuilder().withRFonts(rFonts).withColor(color).withSz(size).withSzCs(size).getObject();
+        return getStyleBuilder().withType("character").withStyleId("Arabic-PrefixChar").withCustomStyle(true)
+                .withName("Arabic-Prefix Char").withLink("Arabic-Prefix").withBasedOn("Arabic-Table-CenterChar")
+                .withRsid("005B3CB5").withRPr(rpr).getObject();
+    }
+
+    private Style createArabicPrefixParagraphStyle(String family, long size) {
+        RFonts rFonts = getRFontsBuilder().withAscii(family).withHAnsi(family).withCs(family).getObject();
+        Color color = getColorBuilder().withVal("C00000").getObject();
+        RPr rpr = getRPrBuilder().withRFonts(rFonts).withColor(color).withSz(size).withSzCs(size).getObject();
+        return getStyleBuilder().withType("paragraph").withStyleId("Arabic-Prefix").withCustomStyle(true)
+                .withName("Arabic-Prefix").withLink("Arabic-PrefixChar").withBasedOn("Arabic-Table-Center")
+                .withRsid("005B3CB5").withRPr(rpr).getObject();
     }
 
     protected abstract void buildDocument(MainDocumentPart mdp);

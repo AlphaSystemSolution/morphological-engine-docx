@@ -26,7 +26,9 @@ final class WmlHelper {
     static final String ARABIC_NORMAL_STYLE = "Arabic-Normal";
     static final String ARABIC_CAPTION_STYLE = "Arabic-Caption";
     private static final String ARABIC_TABLE_CENTER_STYLE = "Arabic-Table-Center";
+    private static final String ARABIC_PREFIX_STYLE = "Arabic-PrefixChar";
     private static final String NO_SPACING_STYLE = "NoSpacing";
+    static final ArabicWord PARTICIPLE_PREFIX = getWord(FA, HA, WAW);
     static final ArabicWord COMMAND_PREFIX = getWord(ALIF, LAM, ALIF_HAMZA_ABOVE, MEEM, RA, SPACE, MEEM, NOON, HA);
     static final ArabicWord FORBIDDING_PREFIX = getWord(WAW, NOON, HA, YA, SPACE, AIN, NOON, HA);
     static final ArabicWord ADVERB_PREFIX = getWord(WAW, ALIF, LAM, DTHA, RA, FA, SPACE, MEEM, NOON, HA);
@@ -84,26 +86,45 @@ final class WmlHelper {
     }
 
     static P getArabicTextP(ArabicSupport value) {
-        return getArabicTextP(null, value, ARABIC_TABLE_CENTER_STYLE);
+        return getArabicTextP(value, ARABIC_TABLE_CENTER_STYLE);
+    }
+
+    private static P getArabicTextP(ArabicWord prefix, ArabicSupport value, String pStyle, String prefixStyle) {
+        if (prefix == null) {
+            return getArabicTextP(value, pStyle);
+        }
+        String rsidr = nextId();
+        PPr ppr = getPPrBuilder().withPStyle(pStyle).getObject();
+
+
+        RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
+        RPr rpr = getRPrBuilder().withRFonts(rFonts).withRStyle(prefixStyle).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
+        Text text = getText(prefix.toUnicode() + " ", "preserve");
+        String id = nextId();
+        R prefixRun = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
+
+        ArabicWord word = (value == null) ? WORD_SPACE : value.toLabel();
+        text = getText(word.toUnicode(), null);
+        id = nextId();
+        rFonts = getRFontsBuilder().withHint(CS).getObject();
+        rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
+        R mainRun = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
+
+        return getPBuilder().withRsidR(rsidr).withRsidRDefault(rsidr).withRsidRPr(id).withRsidP(id).withPPr(ppr)
+                .addContent(prefixRun, mainRun)
+                .getObject();
     }
 
     static P getArabicTextP(ArabicWord prefix, ArabicSupport value) {
-        return getArabicTextP(prefix, value, ARABIC_TABLE_CENTER_STYLE);
+        return getArabicTextP(prefix, value, ARABIC_TABLE_CENTER_STYLE, ARABIC_PREFIX_STYLE);
     }
 
     static P getArabicTextP(ArabicSupport value, String pStyle) {
-        return getArabicTextP(null, value, pStyle);
-    }
-
-    private static P getArabicTextP(ArabicWord prefix, ArabicSupport value, String pStyle) {
         String rsidr = nextId();
         PPr ppr = getPPrBuilder().withPStyle(pStyle).getObject();
         final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
         RPr rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
         ArabicWord word = (value == null) ? WORD_SPACE : value.toLabel();
-        if (prefix != null) {
-            word = concatenateWithSpace(prefix, word);
-        }
         Text text = getText(word.toUnicode(), null);
         String id = nextId();
         R r = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();

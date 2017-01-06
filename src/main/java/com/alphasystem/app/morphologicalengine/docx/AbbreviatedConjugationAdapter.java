@@ -171,7 +171,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
         if (activeLine != null) {
             tableAdapter
                     .startRow()
-                    .addColumn(0, getArabicTextP(activeLine.getActiveParticipleMasculine()))
+                    .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, activeLine.getActiveParticipleMasculine()))
                     .addColumn(1, getArabicTextP(getMultiWord(activeLine.getVerbalNouns())))
                     .addColumn(2, getArabicTextP(activeLine.getPresentTense()))
                     .addColumn(3, getArabicTextP(activeLine.getPastTense()))
@@ -184,7 +184,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
         if (passiveLine != null) {
             tableAdapter
                     .startRow()
-                    .addColumn(0, getArabicTextP(passiveLine.getPassiveParticipleMasculine()))
+                    .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, passiveLine.getPassiveParticipleMasculine()))
                     .addColumn(1, getArabicTextP(getMultiWord(passiveLine.getVerbalNouns())))
                     .addColumn(2, getArabicTextP(passiveLine.getPresentPassiveTense()))
                     .addColumn(3, getArabicTextP(passiveLine.getPastPassiveTense()))
