@@ -26,7 +26,6 @@ final class WmlHelper {
     static final String ARABIC_NORMAL_STYLE = "Arabic-Normal";
     static final String ARABIC_CAPTION_STYLE = "Arabic-Caption";
     private static final String ARABIC_TABLE_CENTER_STYLE = "Arabic-Table-Center";
-    static final String TRANSLATION_STYLE = "Georgia";
     private static final String NO_SPACING_STYLE = "NoSpacing";
     static final ArabicWord COMMAND_PREFIX = getWord(ALIF, LAM, ALIF_HAMZA_ABOVE, MEEM, RA, SPACE, MEEM, NOON, HA);
     static final ArabicWord FORBIDDING_PREFIX = getWord(WAW, NOON, HA, YA, SPACE, AIN, NOON, HA);

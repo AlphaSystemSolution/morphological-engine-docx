@@ -18,6 +18,7 @@ import org.docx4j.wml.*;
 
 import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.*;
 import static com.alphasystem.arabic.model.ArabicWord.concatenateWithSpace;
+import static com.alphasystem.fx.ui.util.FontConstants.ENGLISH_FONT_NAME;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getText;
 import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.*;
 import static com.alphasystem.util.IdGenerator.nextId;
@@ -141,7 +142,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
     private P getTranslationPara(String rsidR, String rsidP, String translation) {
         translation = (translation == null) ? "" : format("%s", translation);
         Text text = getText(translation, null);
-        RFonts rFonts = getRFontsBuilder().withAscii(TRANSLATION_STYLE).withHAnsi(TRANSLATION_STYLE).getObject();
+        RFonts rFonts = getRFontsBuilder().withAscii(ENGLISH_FONT_NAME).withHAnsi(ENGLISH_FONT_NAME).getObject();
         RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
         R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text).getObject();
         String rsidRpr = nextId();
