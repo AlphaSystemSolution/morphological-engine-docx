@@ -99,7 +99,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
         P labelP3 = getHeaderLabelPara(rsidR, rsidRpr, rsidP, conjugationHeader.getTypeLabel3());
 
         tableAdapter.startRow()
-                .addColumn(0, 2, null, translationPara)
+                .addColumn(0, 2, null, WmlAdapter.getEmptyPara(), translationPara)
                 .addColumn(2, 2, null, labelP1, labelP2, labelP3).endRow();
     }
 
@@ -139,7 +139,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
     }
 
     private P getTranslationPara(String rsidR, String rsidP, String translation) {
-        translation = (translation == null) ? "" : format("(%s)", translation);
+        translation = (translation == null) ? "" : format("%s", translation);
         Text text = getText(translation, null);
         RFonts rFonts = getRFontsBuilder().withAscii(TRANSLATION_STYLE).withHAnsi(TRANSLATION_STYLE).getObject();
         RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
