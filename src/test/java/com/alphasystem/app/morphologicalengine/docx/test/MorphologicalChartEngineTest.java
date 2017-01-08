@@ -6,6 +6,7 @@ import com.alphasystem.app.morphologicalengine.conjugation.model.MorphologicalCh
 import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationAdapter;
 import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationAdapter;
 import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngine;
+import com.alphasystem.app.morphologicalengine.docx.WmlHelper;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
@@ -100,7 +101,7 @@ public class MorphologicalChartEngineTest {
         }
         AbbreviatedConjugationAdapter aca = new AbbreviatedConjugationAdapter(chartConfiguration, abbreviatedConjugations);
         try {
-            aca.createDocument(path);
+            WmlHelper.createDocument(path, chartConfiguration, aca);
         } catch (Docx4JException e) {
             fail(format("Failed to create document {%s}", path), e);
         }
@@ -125,7 +126,7 @@ public class MorphologicalChartEngineTest {
         }
         DetailedConjugationAdapter dca = new DetailedConjugationAdapter(detailedConjugations);
         try {
-            dca.createDocument(path);
+            WmlHelper.createDocument(path, chartConfiguration, dca);
         } catch (Docx4JException e) {
             fail(format("Failed to create document {%s}", path), e);
         }
