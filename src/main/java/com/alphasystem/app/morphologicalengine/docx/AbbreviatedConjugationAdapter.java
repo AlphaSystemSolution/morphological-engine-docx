@@ -2,23 +2,18 @@ package com.alphasystem.app.morphologicalengine.docx;
 
 import com.alphasystem.app.morphologicalengine.conjugation.model.AbbreviatedConjugation;
 import com.alphasystem.app.morphologicalengine.conjugation.model.ConjugationHeader;
-import com.alphasystem.app.morphologicalengine.conjugation.model.RootLetters;
 import com.alphasystem.app.morphologicalengine.conjugation.model.abbrvconj.ActiveLine;
 import com.alphasystem.app.morphologicalengine.conjugation.model.abbrvconj.AdverbLine;
 import com.alphasystem.app.morphologicalengine.conjugation.model.abbrvconj.ImperativeAndForbiddingLine;
 import com.alphasystem.app.morphologicalengine.conjugation.model.abbrvconj.PassiveLine;
-import com.alphasystem.arabic.model.ArabicLetterType;
 import com.alphasystem.arabic.model.ArabicWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.openxml.builder.wml.PBuilder;
 import com.alphasystem.openxml.builder.wml.WmlAdapter;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter;
-import org.apache.commons.lang3.ArrayUtils;
 import org.docx4j.wml.*;
 
 import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.*;
-import static com.alphasystem.arabic.model.ArabicWord.concatenateWithSpace;
-import static com.alphasystem.fx.ui.util.FontConstants.ENGLISH_FONT_NAME;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getText;
 import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.*;
 import static com.alphasystem.util.IdGenerator.nextId;
@@ -104,45 +99,11 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
                 .addColumn(2, 2, null, labelP1, labelP2, labelP3).endRow();
     }
 
-    private P getRootWordsPara(String rsidR, String rsidP, ConjugationHeader conjugationHeader) {
-        ParaRPr prpr = getParaRPrBuilder().withSz(SIZE_56).withSzCs(SIZE_56).getObject();
-        PPr ppr = getPPrBuilder().withPStyle(ARABIC_NORMAL_STYLE).withBidi(BOOLEAN_DEFAULT_TRUE_TRUE).withJc(JC_CENTER)
-                .withRPr(prpr).getObject();
-
-        Text text = getText(getRootLetters(conjugationHeader));
-        final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
-        RPr rpr = getRPrBuilder().withRFonts(rFonts).withSz(SIZE_56).withSzCs(SIZE_56).getObject();
-        R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text)
-                .getObject();
-
-        String rsidRpr = nextId();
-        return getPBuilder().withRsidR(rsidR).withRsidRDefault(rsidR).withRsidP(rsidP).withRsidRPr(rsidRpr).withPPr(ppr)
-                .addContent(r).getObject();
-    }
-
-    private String getRootLetters(ConjugationHeader conjugationHeader) {
-        String result = "";
-        if (conjugationHeader != null) {
-            RootLetters rootLetters = conjugationHeader.getRootLetters();
-            if (rootLetters != null) {
-                ArabicWord[] rl = new ArabicWord[3];
-                rl[0] = rootLetters.getFirstRadical().toLabel();
-                rl[1] = rootLetters.getSecondRadical().toLabel();
-                rl[2] = rootLetters.getThirdRadical().toLabel();
-                final ArabicLetterType fourthRadical = rootLetters.getFourthRadical();
-                if (fourthRadical != null) {
-                    rl = ArrayUtils.add(rl, fourthRadical.toLabel());
-                }
-                result = concatenateWithSpace(rl).toUnicode();
-            }
-        }
-        return result;
-    }
-
     private P getTranslationPara(String rsidR, String rsidP, String translation) {
         translation = (translation == null) ? "" : format("%s", translation);
         Text text = getText(translation, null);
-        RFonts rFonts = getRFontsBuilder().withAscii(ENGLISH_FONT_NAME).withHAnsi(ENGLISH_FONT_NAME).getObject();
+        final String translationFontFamily = chartConfiguration.getTranslationFontFamily();
+        RFonts rFonts = getRFontsBuilder().withAscii(translationFontFamily).withHAnsi(translationFontFamily).getObject();
         RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
         R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text).getObject();
         String rsidRpr = nextId();
@@ -154,12 +115,13 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
 
     private P getHeaderLabelPara(String rsidR, String rsidRpr, String rsidP,
                                  ArabicWord label) {
-        ParaRPr prpr = getParaRPrBuilder().withSz(SIZE_32).withSzCs(SIZE_32).getObject();
+        final long arabicFontSize = chartConfiguration.getArabicFontSize();
+        ParaRPr prpr = getParaRPrBuilder().withSz(arabicFontSize).withSzCs(arabicFontSize).getObject();
         PPr ppr = getPPrBuilder().withPStyle(ARABIC_NORMAL_STYLE).withBidi(BOOLEAN_DEFAULT_TRUE_TRUE).withRPr(prpr).getObject();
 
         Text text = getText(label.toUnicode(), null);
         final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
-        RPr rpr = getRPrBuilder().withRFonts(rFonts).withSz(SIZE_32).withSzCs(SIZE_32).getObject();
+        RPr rpr = getRPrBuilder().withRFonts(rFonts).withSz(arabicFontSize).withSzCs(arabicFontSize).getObject();
         R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text).getObject();
 
         return getPBuilder().withRsidR(rsidR).withRsidRDefault(rsidR).withRsidP(rsidP).withRsidRPr(rsidRpr).withPPr(ppr)
