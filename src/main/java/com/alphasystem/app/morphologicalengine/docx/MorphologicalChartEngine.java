@@ -7,6 +7,7 @@ import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationTemplate;
 import com.alphasystem.openxml.builder.wml.TocGenerator;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 
 import java.nio.file.Path;
@@ -40,6 +41,11 @@ public class MorphologicalChartEngine extends DocumentAdapter implements Callabl
     public MorphologicalChartEngine(Path path, ConjugationTemplate conjugationTemplate) {
         this.path = path;
         this.conjugationTemplate = conjugationTemplate;
+    }
+
+    public void createDocument(Path path) throws Docx4JException {
+        final ChartConfiguration chartConfiguration = (conjugationTemplate == null) ? new ChartConfiguration() : conjugationTemplate.getChartConfiguration();
+        WmlHelper.createDocument(path, chartConfiguration, this);
     }
 
     @Override
