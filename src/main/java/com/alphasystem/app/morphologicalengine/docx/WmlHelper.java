@@ -48,8 +48,8 @@ public final class WmlHelper {
 
     public static void createDocument(Path path, ChartConfiguration chartConfiguration, DocumentAdapter documentAdapter) throws Docx4JException {
         final String fontFamily = chartConfiguration.getArabicFontFamily();
-        long normalFontSize = chartConfiguration.getArabicFontSize();
-        long headingFontSize = chartConfiguration.getHeadingFontSize();
+        long normalFontSize = chartConfiguration.getArabicFontSize() * 2;
+        long headingFontSize = chartConfiguration.getHeadingFontSize() * 2;
 
         final WordprocessingMLPackage wordMLPackage = new WmlPackageBuilder().styles(
                 createStyles(fontFamily, normalFontSize, headingFontSize)).getPackage();

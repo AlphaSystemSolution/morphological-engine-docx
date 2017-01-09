@@ -104,7 +104,8 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
         Text text = getText(translation, null);
         final String translationFontFamily = chartConfiguration.getTranslationFontFamily();
         RFonts rFonts = getRFontsBuilder().withAscii(translationFontFamily).withHAnsi(translationFontFamily).getObject();
-        RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
+        final long translationFontSize = chartConfiguration.getTranslationFontSize() * 2;
+        RPr rpr = getRPrBuilder().withRFonts(rFonts).withSz(translationFontSize).withSzCs(translationFontSize).getObject();
         R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text).getObject();
         String rsidRpr = nextId();
         ParaRPr prpr = getParaRPrBuilder().withRFonts(rFonts).getObject();
@@ -115,7 +116,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
 
     private P getHeaderLabelPara(String rsidR, String rsidRpr, String rsidP,
                                  ArabicWord label) {
-        final long arabicFontSize = chartConfiguration.getArabicFontSize();
+        final long arabicFontSize = chartConfiguration.getArabicFontSize() * 2;
         ParaRPr prpr = getParaRPrBuilder().withSz(arabicFontSize).withSzCs(arabicFontSize).getObject();
         PPr ppr = getPPrBuilder().withPStyle(ARABIC_NORMAL_STYLE).withBidi(BOOLEAN_DEFAULT_TRUE_TRUE).withRPr(prpr).getObject();
 
