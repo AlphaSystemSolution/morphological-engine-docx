@@ -8,6 +8,7 @@ import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationAdapter;
 import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngine;
 import com.alphasystem.app.morphologicalengine.docx.WmlHelper;
 import com.alphasystem.arabic.model.NamedTemplate;
+import com.alphasystem.arabic.ui.util.FontUtilities;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationTemplate;
@@ -74,7 +75,7 @@ public class MorphologicalChartEngineTest {
     @Test(dependsOnMethods = {"testCreateEmptyDocument"})
     public void runConjugationBuilder() {
         final Path path = get(parentDocDir.toString(), "conjugations.docx");
-        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine(getConjugationTemplate(null));
+        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine(getConjugationTemplate(getChartConfiguration()));
         try {
             morphologicalChartEngine.createDocument(path);
         } catch (Docx4JException e) {
@@ -85,7 +86,7 @@ public class MorphologicalChartEngineTest {
 
     @Test(dependsOnMethods = {"runConjugationBuilder"})
     public void buildAbbreviatedConjugations() {
-        ChartConfiguration chartConfiguration = new ChartConfiguration().omitToc(true).omitDetailedConjugation(true);
+        ChartConfiguration chartConfiguration = getChartConfiguration().omitToc(true).omitDetailedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
         MorphologicalChartEngine engine = new MorphologicalChartEngine(conjugationTemplate);
         List<MorphologicalChart> charts = engine.createMorphologicalCharts();
@@ -110,7 +111,7 @@ public class MorphologicalChartEngineTest {
 
     @Test(dependsOnMethods = {"buildAbbreviatedConjugations"})
     public void buildDetailConjugations() {
-        ChartConfiguration chartConfiguration = new ChartConfiguration().omitAbbreviatedConjugation(true);
+        ChartConfiguration chartConfiguration = getChartConfiguration().omitAbbreviatedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
         MorphologicalChartEngine engine = new MorphologicalChartEngine(conjugationTemplate);
         List<MorphologicalChart> charts = engine.createMorphologicalCharts();
@@ -131,6 +132,17 @@ public class MorphologicalChartEngineTest {
             fail(format("Failed to create document {%s}", path), e);
         }
         openFile(path);
+    }
+
+    private ChartConfiguration getChartConfiguration() {
+        ChartConfiguration chartConfiguration = new ChartConfiguration();
+        chartConfiguration.setArabicFontFamily(FontUtilities.getDefaultArabicFontName());
+        chartConfiguration.setArabicFontSize(FontUtilities.DEFAULT_ARABIC_FONT_SIZE);
+        chartConfiguration.setHeadingFontSize(FontUtilities.DEFAULT_ARABIC_FONT_SIZE);
+        chartConfiguration.setTranslationFontFamily(FontUtilities.getDefaultEnglishFont());
+        chartConfiguration.setTranslationFontSize(FontUtilities.DEFAULT_ENGLISH_FONT_SIZE);
+        chartConfiguration.setHeadingFontSize(36L);
+        return chartConfiguration;
     }
 
     private ConjugationTemplate getConjugationTemplate(ChartConfiguration chartConfiguration) {
