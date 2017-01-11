@@ -158,7 +158,7 @@ public final class WmlHelper {
         return getTcPrBuilder().withTcBorders(getNilBorders()).getObject();
     }
 
-    static Styles createStyles(String family, long normalSize, long headingSize) {
+    private static Styles createStyles(String family, long normalSize, long headingSize) {
         final StylesBuilder stylesBuilder = WmlBuilderFactory.getStylesBuilder();
         return stylesBuilder.addStyle(createArabicNormalStyle(family, normalSize), createArabicNormalCharStyle(family, normalSize),
                 createArabicTableCenterStyle(), createArabicTableCenterCharStyle(family, normalSize),
