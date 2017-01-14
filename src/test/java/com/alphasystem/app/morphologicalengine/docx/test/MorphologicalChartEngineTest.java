@@ -158,6 +158,9 @@ public class MorphologicalChartEngineTest {
         conjugationTemplate.withData(getConjugationData(FORM_IV_TEMPLATE, "To send down", new RootLetters(NOON, ZAIN, LAM)));
         conjugationTemplate.withData(getConjugationData(FORM_IV_TEMPLATE, "To Establish", new RootLetters(QAF, WAW, MEEM)));
         conjugationTemplate.withData(getConjugationData(FORM_IX_TEMPLATE, "To collapse", new RootLetters(NOON, QAF, DDAD)));
+        conjugationTemplate.withData(getConjugationData(FORM_VII_TEMPLATE, null, new RootLetters(KAF, SEEN, RA)));
+        conjugationTemplate.withData(getConjugationData(FORM_VIII_TEMPLATE, null, new RootLetters(HAMZA, KHA, THAL)));
+        conjugationTemplate.withData(getConjugationData(FORM_I_CATEGORY_A_GROUP_U_TEMPLATE, null, new RootLetters(MEEM, DAL, DAL)));
         return conjugationTemplate;
     }
 
