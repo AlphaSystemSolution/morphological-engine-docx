@@ -5,6 +5,7 @@ import com.alphasystem.arabic.model.ArabicSupport;
 import com.alphasystem.arabic.model.ArabicWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.RootWord;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.PageOrientation;
 import com.alphasystem.openxml.builder.wml.PPrBuilder;
 import com.alphasystem.openxml.builder.wml.StylesBuilder;
 import com.alphasystem.openxml.builder.wml.WmlBuilderFactory;
@@ -19,11 +20,21 @@ import java.nio.file.Path;
 
 import static com.alphasystem.arabic.model.ArabicLetterType.*;
 import static com.alphasystem.arabic.model.ArabicLetters.WORD_SPACE;
-import static com.alphasystem.arabic.model.ArabicWord.*;
+import static com.alphasystem.arabic.model.ArabicWord.concatenateWithAnd;
+import static com.alphasystem.arabic.model.ArabicWord.concatenateWithSpace;
+import static com.alphasystem.arabic.model.ArabicWord.getWord;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getNilBorders;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getText;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.save;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.*;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.BOOLEAN_DEFAULT_TRUE_TRUE;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getColorBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getPBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getPPrBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRFontsBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRPrBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getStyleBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getTcPrBuilder;
 import static com.alphasystem.util.IdGenerator.nextId;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.docx4j.wml.JcEnumeration.CENTER;
@@ -50,8 +61,10 @@ public final class WmlHelper {
         final String fontFamily = chartConfiguration.getArabicFontFamily();
         long normalFontSize = chartConfiguration.getArabicFontSize() * 2;
         long headingFontSize = chartConfiguration.getHeadingFontSize() * 2;
+        final PageOrientation orientation = chartConfiguration.getPageOption().getOrientation();
+        boolean landscape = PageOrientation.LANDSCAPE.equals(orientation);
 
-        final WordprocessingMLPackage wordMLPackage = WmlPackageBuilder.createPackage().styles(
+        final WordprocessingMLPackage wordMLPackage = WmlPackageBuilder.createPackage(landscape).styles(
                 createStyles(fontFamily, normalFontSize, headingFontSize)).getPackage();
         documentAdapter.buildDocument(wordMLPackage.getMainDocumentPart());
         save(path.toFile(), wordMLPackage);
