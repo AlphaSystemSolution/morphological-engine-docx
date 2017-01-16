@@ -51,7 +51,7 @@ public final class WmlHelper {
         long normalFontSize = chartConfiguration.getArabicFontSize() * 2;
         long headingFontSize = chartConfiguration.getHeadingFontSize() * 2;
 
-        final WordprocessingMLPackage wordMLPackage = new WmlPackageBuilder().styles(
+        final WordprocessingMLPackage wordMLPackage = WmlPackageBuilder.createPackage().styles(
                 createStyles(fontFamily, normalFontSize, headingFontSize)).getPackage();
         documentAdapter.buildDocument(wordMLPackage.getMainDocumentPart());
         save(path.toFile(), wordMLPackage);
