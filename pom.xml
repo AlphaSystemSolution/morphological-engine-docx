@@ -3,13 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alphasystem.arabics</groupId>
     <artifactId>morphological-engine-docx</artifactId>
+	<version>4.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Morphological Engine Docx Writer</name>
     <parent>
         <artifactId>jar</artifactId>
         <groupId>com.alphasystem.project</groupId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../project/jar/pom.xml</relativePath>
+        <relativePath/>
     </parent>
     <dependencies>
         <dependency>
@@ -49,7 +50,7 @@
     </build>
     <properties>
         <maven.test.skip>false</maven.test.skip>
-        <openxml-builder.version>${project.version}</openxml-builder.version>
+        <openxml-builder.version>${project.parent.version}</openxml-builder.version>
         <morphological-engine.version>${project.version}</morphological-engine.version>
     </properties>
 </project>
