@@ -7,6 +7,7 @@ import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationAdapte
 import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationAdapter;
 import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngine;
 import com.alphasystem.app.morphologicalengine.docx.WmlHelper;
+import com.alphasystem.app.morphologicalengine.spring.MorphologicalEngineConfiguration;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.arabic.ui.util.FontUtilities;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
@@ -16,10 +17,12 @@ import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun;
 import org.apache.commons.lang3.ArrayUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,18 +30,26 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.alphasystem.arabic.model.ArabicLetterType.*;
-import static com.alphasystem.arabic.model.NamedTemplate.*;
+import static com.alphasystem.arabic.model.NamedTemplate.FORM_IV_TEMPLATE;
+import static com.alphasystem.arabic.model.NamedTemplate.FORM_IX_TEMPLATE;
+import static com.alphasystem.arabic.model.NamedTemplate.FORM_I_CATEGORY_A_GROUP_I_TEMPLATE;
+import static com.alphasystem.arabic.model.NamedTemplate.FORM_I_CATEGORY_A_GROUP_U_TEMPLATE;
+import static com.alphasystem.arabic.model.NamedTemplate.FORM_VIII_TEMPLATE;
+import static com.alphasystem.arabic.model.NamedTemplate.FORM_VII_TEMPLATE;
 import static com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun.VERBAL_NOUN_V1;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
 import static java.nio.file.Paths.get;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
 import static org.testng.Reporter.log;
 
 /**
  * @author sali
  */
-public class MorphologicalChartEngineTest {
+@ContextConfiguration(classes = {MorphologicalEngineConfiguration.class})
+public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTests {
 
     private static Path parentDocDir = null;
 
@@ -161,6 +172,7 @@ public class MorphologicalChartEngineTest {
         conjugationTemplate.withData(getConjugationData(FORM_VII_TEMPLATE, null, new RootLetters(KAF, SEEN, RA)));
         conjugationTemplate.withData(getConjugationData(FORM_VIII_TEMPLATE, null, new RootLetters(HAMZA, KHA, THAL)));
         conjugationTemplate.withData(getConjugationData(FORM_I_CATEGORY_A_GROUP_U_TEMPLATE, null, new RootLetters(MEEM, DAL, DAL)));
+        conjugationTemplate.withData(getConjugationData(FORM_I_CATEGORY_A_GROUP_I_TEMPLATE, null, new RootLetters(DTHA, LAM, LAM)));
         return conjugationTemplate;
     }
 

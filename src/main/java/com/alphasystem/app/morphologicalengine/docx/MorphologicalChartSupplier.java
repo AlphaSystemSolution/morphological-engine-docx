@@ -4,7 +4,7 @@ import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationBu
 import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationHelper;
 import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationRoots;
 import com.alphasystem.app.morphologicalengine.conjugation.model.MorphologicalChart;
-import com.alphasystem.app.morphologicalengine.guice.GuiceSupport;
+import com.alphasystem.app.morphologicalengine.spring.MorphologicalEngineFactory;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
@@ -23,7 +23,7 @@ public class MorphologicalChartSupplier implements Supplier<MorphologicalChart> 
     public MorphologicalChartSupplier(ChartConfiguration chartConfiguration, ConjugationData conjugationData) {
         this.chartConfiguration = chartConfiguration;
         this.conjugationData = conjugationData;
-        this.conjugationBuilder = GuiceSupport.getInstance().getConjugationBuilder();
+        this.conjugationBuilder = MorphologicalEngineFactory.getConjugationBuilder();
     }
 
     private MorphologicalChart createChart() {
