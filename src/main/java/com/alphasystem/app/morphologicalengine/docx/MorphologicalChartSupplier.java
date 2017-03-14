@@ -36,7 +36,6 @@ public class MorphologicalChartSupplier implements Supplier<MorphologicalChart> 
         }
         final ConjugationRoots conjugationRoots = ConjugationHelper.getConjugationRoots(conjugationData);
         conjugationRoots.setChartConfiguration(chartConfiguration);
-        conjugationRoots.setConjugationConfiguration(conjugationData.getConfiguration());
         return conjugationBuilder.doConjugation(conjugationRoots);
     }
 
