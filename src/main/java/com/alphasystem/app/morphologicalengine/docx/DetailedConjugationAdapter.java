@@ -119,10 +119,12 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
     private void addCaptionRow(SarfTermType leftSideCaption, SarfTermType rightSideCaption) {
         TcPr leftTcPr = getColumnProperties(leftSideCaption);
         TcPr rightTcPr = getColumnProperties(rightSideCaption);
+        final String leftSideCaptionValue = (leftSideCaption == null) ? null : leftSideCaption.toLabel().toUnicode();
+        final String rightSideCaptionValue = (rightSideCaption == null) ? null : rightSideCaption.toLabel().toUnicode();
         tableAdapter.startRow()
-                .addColumn(0, 3, leftTcPr, getArabicTextP(leftSideCaption, ARABIC_CAPTION_STYLE))
+                .addColumn(0, 3, leftTcPr, getArabicTextPWithStyle(leftSideCaptionValue, ARABIC_CAPTION_STYLE))
                 .addColumn(3, (Integer) null, VerticalMergeType.RESTART, getColumnProperties(null), createNoSpacingStyleP())
-                .addColumn(4, 3, rightTcPr, getArabicTextP(rightSideCaption, ARABIC_CAPTION_STYLE)).endRow();
+                .addColumn(4, 3, rightTcPr, getArabicTextPWithStyle(rightSideCaptionValue, ARABIC_CAPTION_STYLE)).endRow();
     }
 
     private void addConjugationRow(ConjugationTuple leftConjugationTuple, ConjugationTuple rightConjugationTuple) {
@@ -134,13 +136,16 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
         boolean empty = leftConjugationTuple == null;
         TcPr tcPr = empty ? getNilBorderColumnProperties() : null;
         RootWord rootWord = empty ? null : leftConjugationTuple.getPlural();
-        tableAdapter.addColumn(0, tcPr, getArabicTextP(rootWord));
+        String value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        tableAdapter.addColumn(0, tcPr, getArabicTextP(value));
 
         rootWord = empty ? null : leftConjugationTuple.getDual();
-        tableAdapter.addColumn(1, tcPr, getArabicTextP(rootWord));
+        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        tableAdapter.addColumn(1, tcPr, getArabicTextP(value));
 
         rootWord = empty ? null : leftConjugationTuple.getSingular();
-        tableAdapter.addColumn(2, tcPr, getArabicTextP(rootWord));
+        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        tableAdapter.addColumn(2, tcPr, getArabicTextP(value));
 
         tcPr = getNilBorderColumnProperties();
         tableAdapter.addColumn(3, (Integer) null, VerticalMergeType.CONTINUE, tcPr, createNoSpacingStyleP());
@@ -148,13 +153,16 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
         empty = rightConjugationTuple == null;
         tcPr = empty ? getNilBorderColumnProperties() : null;
         rootWord = empty ? null : rightConjugationTuple.getPlural();
-        tableAdapter.addColumn(4, tcPr, getArabicTextP(rootWord));
+        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        tableAdapter.addColumn(4, tcPr, getArabicTextP(value));
 
         rootWord = empty ? null : rightConjugationTuple.getDual();
-        tableAdapter.addColumn(5, tcPr, getArabicTextP(rootWord));
+        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        tableAdapter.addColumn(5, tcPr, getArabicTextP(value));
 
         rootWord = empty ? null : rightConjugationTuple.getSingular();
-        tableAdapter.addColumn(6, tcPr, getArabicTextP(rootWord));
+        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        tableAdapter.addColumn(6, tcPr, getArabicTextP(value));
 
         tableAdapter.endRow();
     }

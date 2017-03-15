@@ -1,10 +1,8 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
 import com.alphasystem.app.morphologicalengine.conjugation.model.abbrvconj.ActiveLine;
-import com.alphasystem.arabic.model.ArabicSupport;
 import com.alphasystem.arabic.model.ArabicWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
-import com.alphasystem.morphologicalanalysis.morphology.model.RootWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.PageOrientation;
 import com.alphasystem.openxml.builder.wml.PPrBuilder;
 import com.alphasystem.openxml.builder.wml.StylesBuilder;
@@ -20,8 +18,6 @@ import java.nio.file.Path;
 
 import static com.alphasystem.arabic.model.ArabicLetterType.*;
 import static com.alphasystem.arabic.model.ArabicLetters.WORD_SPACE;
-import static com.alphasystem.arabic.model.ArabicWord.concatenateWithAnd;
-import static com.alphasystem.arabic.model.ArabicWord.concatenateWithSpace;
 import static com.alphasystem.arabic.model.ArabicWord.getWord;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getNilBorders;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getText;
@@ -91,42 +87,42 @@ public final class WmlHelper {
      * @param activeLine active line
      * @return title {@link ArabicWord}
      */
-    static ArabicWord getTitleWord(ActiveLine activeLine) {
-        ArabicWord pastTense = WORD_SPACE;
-        ArabicWord presentTense = WORD_SPACE;
+    static String getTitleWord(ActiveLine activeLine) {
+        String pastTense = WORD_SPACE.toUnicode();
+        String presentTense = WORD_SPACE.toUnicode();
         if (activeLine != null) {
-            RootWord pastTenseRootWord = activeLine.getPastTense();
-            pastTense = (pastTenseRootWord == null) ? WORD_SPACE : pastTenseRootWord.getRootWord();
+            String pastTenseRootWord = activeLine.getPastTense();
+            pastTense = (pastTenseRootWord == null) ? WORD_SPACE.toUnicode() : pastTenseRootWord;
             if (pastTense == null) {
-                pastTense = WORD_SPACE;
+                pastTense = WORD_SPACE.toUnicode();
             }
-            RootWord presentTenseRootWord = activeLine.getPresentTense();
-            presentTense = (presentTenseRootWord == null) ? WORD_SPACE : presentTenseRootWord.getRootWord();
+            String presentTenseRootWord = activeLine.getPresentTense();
+            presentTense = (presentTenseRootWord == null) ? WORD_SPACE.toUnicode() : presentTenseRootWord;
             if (presentTense == null) {
-                presentTense = WORD_SPACE;
+                presentTense = WORD_SPACE.toUnicode();
             }
         }
-        return concatenateWithSpace(pastTense, presentTense);
+        return pastTense + " " + presentTense;
     }
 
-    static ArabicWord getMultiWord(RootWord[] words) {
-        ArabicWord w = WORD_SPACE;
+    static String getMultiWord(String[] words) {
+        StringBuilder builder = new StringBuilder();
         if (isNotEmpty(words)) {
-            w = words[0].toLabel();
+            builder.append(words[0]);
             for (int i = 1; i < words.length; i++) {
-                w = concatenateWithAnd(w, words[i].toLabel());
+                builder.append(WAW.toUnicode()).append(" ").append(words[i]);
             }
         }
-        return w;
+        return builder.toString();
     }
 
-    static P getArabicTextP(ArabicSupport value) {
-        return getArabicTextP(value, ARABIC_TABLE_CENTER_STYLE);
+    static P getArabicTextP(String value) {
+        return getArabicTextPWithStyle(value, ARABIC_TABLE_CENTER_STYLE);
     }
 
-    private static P getArabicTextP(ArabicWord prefix, ArabicSupport value, String pStyle, String prefixStyle) {
+    private static P getArabicTextP(ArabicWord prefix, String value, String pStyle, String prefixStyle) {
         if (prefix == null) {
-            return getArabicTextP(value, pStyle);
+            return getArabicTextPWithStyle(value, pStyle);
         }
         String rsidr = nextId();
         PPr ppr = getPPrBuilder().withPStyle(pStyle).getObject();
@@ -138,8 +134,8 @@ public final class WmlHelper {
         String id = nextId();
         R prefixRun = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
 
-        ArabicWord word = (value == null) ? WORD_SPACE : value.toLabel();
-        text = getText(word.toUnicode(), null);
+        String word = (value == null) ? WORD_SPACE.toUnicode() : value;
+        text = getText(word, null);
         id = nextId();
         rFonts = getRFontsBuilder().withHint(CS).getObject();
         rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
@@ -150,17 +146,17 @@ public final class WmlHelper {
                 .getObject();
     }
 
-    static P getArabicTextP(ArabicWord prefix, ArabicSupport value) {
+    static P getArabicTextP(ArabicWord prefix, String value) {
         return getArabicTextP(prefix, value, ARABIC_TABLE_CENTER_STYLE, ARABIC_PREFIX_STYLE);
     }
 
-    static P getArabicTextP(ArabicSupport value, String pStyle) {
+    static P getArabicTextPWithStyle(String value, String pStyle) {
         String rsidr = nextId();
         PPr ppr = getPPrBuilder().withPStyle(pStyle).getObject();
         final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
         RPr rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
-        ArabicWord word = (value == null) ? WORD_SPACE : value.toLabel();
-        Text text = getText(word.toUnicode(), null);
+        String word = (value == null) ? WORD_SPACE.toUnicode() : value;
+        Text text = getText(word, null);
         String id = nextId();
         R r = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
         return getPBuilder().withRsidR(rsidr).withRsidRDefault(rsidr).withRsidRPr(id).withRsidP(id).withPPr(ppr).addContent(r)

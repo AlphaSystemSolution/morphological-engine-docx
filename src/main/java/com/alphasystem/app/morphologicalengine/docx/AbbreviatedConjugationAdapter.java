@@ -80,7 +80,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
         final ConjugationHeader conjugationHeader = abbreviatedConjugation.getConjugationHeader();
         String title = conjugationHeader.getTitle();
         if (title == null) {
-            title = getTitleWord(abbreviatedConjugation.getActiveLine()).toUnicode();
+            title = getTitleWord(abbreviatedConjugation.getActiveLine());
         }
         final Text text = getText(title);
         final R r = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
