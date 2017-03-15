@@ -1,6 +1,6 @@
 package com.alphasystem.app.morphologicalengine.docx.test;
 
-import com.alphasystem.app.morphologicalengine.conjugation.model.AbbreviatedConjugation;
+import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
 import com.alphasystem.app.morphologicalengine.conjugation.model.DetailedConjugation;
 import com.alphasystem.app.morphologicalengine.conjugation.model.MorphologicalChart;
 import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationAdapter;

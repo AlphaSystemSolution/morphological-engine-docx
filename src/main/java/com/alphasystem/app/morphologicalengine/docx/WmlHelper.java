@@ -1,6 +1,6 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import com.alphasystem.app.morphologicalengine.conjugation.model.abbrvconj.ActiveLine;
+import com.alphasystem.morphologicalengine.model.abbrvconj.ActiveLine;
 import com.alphasystem.arabic.model.ArabicWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.PageOrientation;
