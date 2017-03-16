@@ -1,8 +1,8 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
 import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
-import com.alphasystem.app.morphologicalengine.conjugation.model.DetailedConjugation;
-import com.alphasystem.app.morphologicalengine.conjugation.model.MorphologicalChart;
+import com.alphasystem.morphologicalengine.model.DetailedConjugation;
+import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationTemplate;

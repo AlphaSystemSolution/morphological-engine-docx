@@ -1,9 +1,9 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import com.alphasystem.app.morphologicalengine.conjugation.model.*;
 import com.alphasystem.morphologicalanalysis.morphology.model.RootWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.SarfTermType;
 import com.alphasystem.morphologicalengine.model.ConjugationTuple;
+import com.alphasystem.morphologicalengine.model.DetailedConjugation;
 import com.alphasystem.morphologicalengine.model.NounConjugationGroup;
 import com.alphasystem.morphologicalengine.model.NounDetailedConjugationPair;
 import com.alphasystem.morphologicalengine.model.VerbConjugationGroup;
