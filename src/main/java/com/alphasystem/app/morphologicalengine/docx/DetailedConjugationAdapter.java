@@ -4,6 +4,7 @@ import com.alphasystem.app.morphologicalengine.conjugation.model.*;
 import com.alphasystem.morphologicalanalysis.morphology.model.RootWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.SarfTermType;
 import com.alphasystem.morphologicalengine.model.ConjugationTuple;
+import com.alphasystem.morphologicalengine.model.VerbConjugationGroup;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter.VerticalMergeType;
 import org.docx4j.wml.Tbl;
