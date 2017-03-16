@@ -1,6 +1,5 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import com.alphasystem.morphologicalanalysis.morphology.model.RootWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.SarfTermType;
 import com.alphasystem.morphologicalengine.model.ConjugationTuple;
 import com.alphasystem.morphologicalengine.model.DetailedConjugation;
@@ -13,7 +12,12 @@ import com.alphasystem.openxml.builder.wml.table.TableAdapter.VerticalMergeType;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.TcPr;
 
-import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.*;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.ARABIC_CAPTION_STYLE;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.addSeparatorRow;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.createNoSpacingStyleP;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getArabicTextP;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getArabicTextPWithStyle;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getNilBorderColumnProperties;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 /**
@@ -140,16 +144,13 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
 
         boolean empty = leftConjugationTuple == null;
         TcPr tcPr = empty ? getNilBorderColumnProperties() : null;
-        RootWord rootWord = empty ? null : leftConjugationTuple.getPlural();
-        String value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        String value = empty ? null : leftConjugationTuple.getPlural();
         tableAdapter.addColumn(0, tcPr, getArabicTextP(value));
 
-        rootWord = empty ? null : leftConjugationTuple.getDual();
-        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        value = empty ? null : leftConjugationTuple.getDual();
         tableAdapter.addColumn(1, tcPr, getArabicTextP(value));
 
-        rootWord = empty ? null : leftConjugationTuple.getSingular();
-        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        value = empty ? null : leftConjugationTuple.getSingular();
         tableAdapter.addColumn(2, tcPr, getArabicTextP(value));
 
         tcPr = getNilBorderColumnProperties();
@@ -157,16 +158,13 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
 
         empty = rightConjugationTuple == null;
         tcPr = empty ? getNilBorderColumnProperties() : null;
-        rootWord = empty ? null : rightConjugationTuple.getPlural();
-        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        value = empty ? null : rightConjugationTuple.getPlural();
         tableAdapter.addColumn(4, tcPr, getArabicTextP(value));
 
-        rootWord = empty ? null : rightConjugationTuple.getDual();
-        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        value = empty ? null : rightConjugationTuple.getDual();
         tableAdapter.addColumn(5, tcPr, getArabicTextP(value));
 
-        rootWord = empty ? null : rightConjugationTuple.getSingular();
-        value = (rootWord == null) ? null : rootWord.toLabel().toUnicode();
+        value = empty ? null : rightConjugationTuple.getSingular();
         tableAdapter.addColumn(6, tcPr, getArabicTextP(value));
 
         tableAdapter.endRow();
