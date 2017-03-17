@@ -1,8 +1,5 @@
 package com.alphasystem.app.morphologicalengine.docx.test;
 
-import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
-import com.alphasystem.morphologicalengine.model.DetailedConjugation;
-import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationAdapter;
 import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationAdapter;
 import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngine;
@@ -15,6 +12,9 @@ import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationTemplate;
 import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun;
+import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
+import com.alphasystem.morphologicalengine.model.DetailedConjugation;
+import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import org.apache.commons.lang3.ArrayUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,7 +41,6 @@ import static java.lang.String.format;
 import static java.lang.System.getProperty;
 import static java.nio.file.Paths.get;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.fail;
 import static org.testng.Reporter.log;
 
@@ -74,7 +73,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     public void testCreateEmptyDocument() {
         final Path path = get(parentDocDir.toString(), "mydoc.docx");
         log(format("File Path: %s", path), true);
-        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine(null, null);
+        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine();
         try {
             morphologicalChartEngine.createDocument(path);
             Assert.assertEquals(Files.exists(path), true);
@@ -86,7 +85,8 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     @Test(dependsOnMethods = {"testCreateEmptyDocument"})
     public void runConjugationBuilder() {
         final Path path = get(parentDocDir.toString(), "conjugations.docx");
-        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine(getConjugationTemplate(getChartConfiguration()));
+        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine()
+                .conjugationTemplate(getConjugationTemplate(getChartConfiguration()));
         try {
             morphologicalChartEngine.createDocument(path);
         } catch (Docx4JException e) {
@@ -99,11 +99,10 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     public void buildAbbreviatedConjugations() {
         ChartConfiguration chartConfiguration = getChartConfiguration().omitToc(true).omitDetailedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
-        MorphologicalChartEngine engine = new MorphologicalChartEngine(conjugationTemplate);
+        MorphologicalChartEngine engine = new MorphologicalChartEngine().conjugationTemplate(conjugationTemplate);
         List<MorphologicalChart> charts = engine.createMorphologicalCharts();
         final MorphologicalChart chart = charts.get(0);
         assertNotNull(chart);
-        assertNull(chart.getDetailedConjugation());
 
         final Path path = get(parentDocDir.toString(), "abbreviated-conjugations.docx");
 
@@ -124,11 +123,10 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     public void buildDetailConjugations() {
         ChartConfiguration chartConfiguration = getChartConfiguration().omitAbbreviatedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
-        MorphologicalChartEngine engine = new MorphologicalChartEngine(conjugationTemplate);
+        MorphologicalChartEngine engine = new MorphologicalChartEngine().conjugationTemplate(conjugationTemplate);
         List<MorphologicalChart> charts = engine.createMorphologicalCharts();
         final MorphologicalChart chart = charts.get(0);
         assertNotNull(chart);
-        assertNull(chart.getAbbreviatedConjugation());
 
         final Path path = get(parentDocDir.toString(), "detail-conjugations.docx");
 

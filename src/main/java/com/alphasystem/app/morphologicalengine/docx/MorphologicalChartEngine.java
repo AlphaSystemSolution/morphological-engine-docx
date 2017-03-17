@@ -1,11 +1,11 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
-import com.alphasystem.morphologicalengine.model.DetailedConjugation;
-import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationTemplate;
+import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
+import com.alphasystem.morphologicalengine.model.DetailedConjugation;
+import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import com.alphasystem.openxml.builder.wml.TocGenerator;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
@@ -13,48 +13,27 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * @author sali
  */
-public class MorphologicalChartEngine extends DocumentAdapter implements Callable<Boolean> {
+public class MorphologicalChartEngine extends DocumentAdapter {
 
-    private final Path path;
-    private final ConjugationTemplate conjugationTemplate;
+    private ConjugationTemplate conjugationTemplate;
 
-    /**
-     * Creates new document based on default configuration and charts.
-     *
-     * @param conjugationTemplate {@link ConjugationTemplate} given charts.
-     */
-    public MorphologicalChartEngine(ConjugationTemplate conjugationTemplate) {
-        this(null, conjugationTemplate);
-    }
-
-    /**
-     * Creates new document based on template.
-     *
-     * @param path                Name of file to save.
-     * @param conjugationTemplate {@link ConjugationTemplate} given template.
-     */
-    public MorphologicalChartEngine(Path path, ConjugationTemplate conjugationTemplate) {
-        this.path = path;
+    public void setConjugationTemplate(ConjugationTemplate conjugationTemplate) {
         this.conjugationTemplate = conjugationTemplate;
     }
 
-    public void createDocument(Path path) throws Docx4JException {
-        final ChartConfiguration chartConfiguration = (conjugationTemplate == null) ? new ChartConfiguration() : conjugationTemplate.getChartConfiguration();
-        WmlHelper.createDocument(path, chartConfiguration, this);
+    public MorphologicalChartEngine conjugationTemplate(ConjugationTemplate conjugationTemplate) {
+        setConjugationTemplate(conjugationTemplate);
+        return this;
     }
 
-    @Override
-    public Boolean call() throws Exception {
-        if (path == null) {
-            throw new IllegalArgumentException("Path cannot be null.");
-        }
-        createDocument(path);
-        return true;
+    public void createDocument(Path path) throws Docx4JException {
+        final ChartConfiguration chartConfiguration = (conjugationTemplate == null) ? new ChartConfiguration() :
+                conjugationTemplate.getChartConfiguration();
+        WmlHelper.createDocument(path, chartConfiguration, this);
     }
 
     @Override
@@ -89,11 +68,10 @@ public class MorphologicalChartEngine extends DocumentAdapter implements Callabl
     }
 
     public List<MorphologicalChart> createMorphologicalCharts() {
-        final ChartConfiguration chartConfiguration = conjugationTemplate.getChartConfiguration();
         final List<ConjugationData> data = conjugationTemplate.getData();
         final List<MorphologicalChart> morphologicalCharts = new ArrayList<>(data.size());
         for (ConjugationData conjugationData : data) {
-            MorphologicalChartSupplier supplier = new MorphologicalChartSupplier(chartConfiguration, conjugationData);
+            MorphologicalChartSupplier supplier = new MorphologicalChartSupplier(conjugationData);
             morphologicalCharts.add(supplier.get());
         }
         return morphologicalCharts;

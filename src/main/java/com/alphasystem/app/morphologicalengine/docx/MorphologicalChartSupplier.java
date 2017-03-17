@@ -3,11 +3,10 @@ package com.alphasystem.app.morphologicalengine.docx;
 import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationBuilder;
 import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationHelper;
 import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationRoots;
-import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import com.alphasystem.app.morphologicalengine.spring.MorphologicalEngineFactory;
-import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
+import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 
 import java.util.function.Supplier;
 
@@ -17,11 +16,9 @@ import java.util.function.Supplier;
 public class MorphologicalChartSupplier implements Supplier<MorphologicalChart> {
 
     private final ConjugationBuilder conjugationBuilder;
-    private final ChartConfiguration chartConfiguration;
     private final ConjugationData conjugationData;
 
-    public MorphologicalChartSupplier(ChartConfiguration chartConfiguration, ConjugationData conjugationData) {
-        this.chartConfiguration = chartConfiguration;
+    public MorphologicalChartSupplier(ConjugationData conjugationData) {
         this.conjugationData = conjugationData;
         this.conjugationBuilder = MorphologicalEngineFactory.getConjugationBuilder();
     }
@@ -35,7 +32,6 @@ public class MorphologicalChartSupplier implements Supplier<MorphologicalChart> 
             return null;
         }
         final ConjugationRoots conjugationRoots = ConjugationHelper.getConjugationRoots(conjugationData);
-        conjugationRoots.setChartConfiguration(chartConfiguration);
         return conjugationBuilder.doConjugation(conjugationRoots);
     }
 
