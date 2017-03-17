@@ -1,8 +1,12 @@
 package com.alphasystem.app.morphologicalengine.docx.test;
 
 import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationAdapter;
+import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationFactory;
 import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationAdapter;
+import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationFactory;
+import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartConfiguration;
 import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngine;
+import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngineFactory;
 import com.alphasystem.app.morphologicalengine.docx.WmlHelper;
 import com.alphasystem.app.morphologicalengine.spring.MorphologicalEngineConfiguration;
 import com.alphasystem.arabic.model.NamedTemplate;
@@ -17,6 +21,7 @@ import com.alphasystem.morphologicalengine.model.DetailedConjugation;
 import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import org.apache.commons.lang3.ArrayUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
@@ -47,7 +52,7 @@ import static org.testng.Reporter.log;
 /**
  * @author sali
  */
-@ContextConfiguration(classes = {MorphologicalEngineConfiguration.class})
+@ContextConfiguration(classes = {MorphologicalEngineConfiguration.class, MorphologicalChartConfiguration.class})
 public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTests {
 
     private static Path parentDocDir = null;
@@ -69,11 +74,15 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
         }
     }
 
+    @Autowired private MorphologicalChartEngineFactory morphologicalChartEngineFactory;
+    @Autowired private AbbreviatedConjugationFactory abbreviatedConjugationFactory;
+    @Autowired private DetailedConjugationFactory detailedConjugationFactory;
+
     @Test
     public void testCreateEmptyDocument() {
         final Path path = get(parentDocDir.toString(), "mydoc.docx");
         log(format("File Path: %s", path), true);
-        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine();
+        MorphologicalChartEngine morphologicalChartEngine = morphologicalChartEngineFactory.createMorphologicalChartEngine(null);
         try {
             morphologicalChartEngine.createDocument(path);
             Assert.assertEquals(Files.exists(path), true);
@@ -85,8 +94,8 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     @Test(dependsOnMethods = {"testCreateEmptyDocument"})
     public void runConjugationBuilder() {
         final Path path = get(parentDocDir.toString(), "conjugations.docx");
-        MorphologicalChartEngine morphologicalChartEngine = new MorphologicalChartEngine()
-                .conjugationTemplate(getConjugationTemplate(getChartConfiguration()));
+        final ConjugationTemplate conjugationTemplate = getConjugationTemplate(getChartConfiguration());
+        MorphologicalChartEngine morphologicalChartEngine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
         try {
             morphologicalChartEngine.createDocument(path);
         } catch (Docx4JException e) {
@@ -99,7 +108,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     public void buildAbbreviatedConjugations() {
         ChartConfiguration chartConfiguration = getChartConfiguration().omitToc(true).omitDetailedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
-        MorphologicalChartEngine engine = new MorphologicalChartEngine().conjugationTemplate(conjugationTemplate);
+        MorphologicalChartEngine engine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
         List<MorphologicalChart> charts = engine.createMorphologicalCharts();
         final MorphologicalChart chart = charts.get(0);
         assertNotNull(chart);
@@ -110,7 +119,8 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
         for (int i = 0; i < charts.size(); i++) {
             abbreviatedConjugations[i] = charts.get(i).getAbbreviatedConjugation();
         }
-        AbbreviatedConjugationAdapter aca = new AbbreviatedConjugationAdapter(chartConfiguration, abbreviatedConjugations);
+        AbbreviatedConjugationAdapter aca = abbreviatedConjugationFactory.creaAbbreviatedConjugationAdapter(chartConfiguration,
+                abbreviatedConjugations);
         try {
             WmlHelper.createDocument(path, chartConfiguration, aca);
         } catch (Docx4JException e) {
@@ -123,7 +133,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     public void buildDetailConjugations() {
         ChartConfiguration chartConfiguration = getChartConfiguration().omitAbbreviatedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
-        MorphologicalChartEngine engine = new MorphologicalChartEngine().conjugationTemplate(conjugationTemplate);
+        MorphologicalChartEngine engine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
         List<MorphologicalChart> charts = engine.createMorphologicalCharts();
         final MorphologicalChart chart = charts.get(0);
         assertNotNull(chart);
@@ -134,7 +144,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
         for (int i = 0; i < charts.size(); i++) {
             detailedConjugations[i] = charts.get(i).getDetailedConjugation();
         }
-        DetailedConjugationAdapter dca = new DetailedConjugationAdapter(detailedConjugations);
+        DetailedConjugationAdapter dca = detailedConjugationFactory.createDetailedConjugationAdapter(detailedConjugations);
         try {
             WmlHelper.createDocument(path, chartConfiguration, dca);
         } catch (Docx4JException e) {

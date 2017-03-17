@@ -30,7 +30,7 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
     private final DetailedConjugation[] detailedConjugations;
     private final TableAdapter tableAdapter;
 
-    public DetailedConjugationAdapter(DetailedConjugation... detailedConjugations) {
+    DetailedConjugationAdapter(DetailedConjugation... detailedConjugations) {
         this.detailedConjugations = isEmpty(detailedConjugations) ? new DetailedConjugation[0] : detailedConjugations;
         this.tableAdapter = new TableAdapter().startTable(16.24, 16.24, 16.24, 2.56, 16.24, 16.24, 16.24);
     }

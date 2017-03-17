@@ -43,7 +43,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
     private final AbbreviatedConjugation[] abbreviatedConjugations;
     private final TableAdapter tableAdapter;
 
-    public AbbreviatedConjugationAdapter(ChartConfiguration chartConfiguration, AbbreviatedConjugation... abbreviatedConjugations) {
+    AbbreviatedConjugationAdapter(ChartConfiguration chartConfiguration, AbbreviatedConjugation... abbreviatedConjugations) {
         this.chartConfiguration = (chartConfiguration == null) ? new ChartConfiguration() : chartConfiguration;
         this.abbreviatedConjugations = isEmpty(abbreviatedConjugations) ? new AbbreviatedConjugation[0] : abbreviatedConjugations;
         this.tableAdapter = new TableAdapter().startTable(25.0, 25.0, 25.0, 25.0);

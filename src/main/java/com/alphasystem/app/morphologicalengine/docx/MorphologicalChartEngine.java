@@ -19,15 +19,18 @@ import java.util.List;
  */
 public class MorphologicalChartEngine extends DocumentAdapter {
 
-    private ConjugationTemplate conjugationTemplate;
+    private final AbbreviatedConjugationFactory abbreviatedConjugationFactory;
+    private final DetailedConjugationFactory detailedConjugationFactory;
+    private final SupplierFactory supplierFactory;
+    private final ConjugationTemplate conjugationTemplate;
 
-    public void setConjugationTemplate(ConjugationTemplate conjugationTemplate) {
+    MorphologicalChartEngine(AbbreviatedConjugationFactory abbreviatedConjugationFactory,
+                             DetailedConjugationFactory detailedConjugationFactory, SupplierFactory supplierFactory,
+                             ConjugationTemplate conjugationTemplate) {
+        this.abbreviatedConjugationFactory = abbreviatedConjugationFactory;
+        this.detailedConjugationFactory = detailedConjugationFactory;
+        this.supplierFactory = supplierFactory;
         this.conjugationTemplate = conjugationTemplate;
-    }
-
-    public MorphologicalChartEngine conjugationTemplate(ConjugationTemplate conjugationTemplate) {
-        setConjugationTemplate(conjugationTemplate);
-        return this;
     }
 
     public void createDocument(Path path) throws Docx4JException {
@@ -55,14 +58,15 @@ public class MorphologicalChartEngine extends DocumentAdapter {
         final AbbreviatedConjugation abbreviatedConjugation = morphologicalChart.getAbbreviatedConjugation();
         final boolean omitAbbreviatedConjugation = (abbreviatedConjugation == null) || chartConfiguration.isOmitAbbreviatedConjugation();
         if (!omitAbbreviatedConjugation) {
-            AbbreviatedConjugationAdapter aca = new AbbreviatedConjugationAdapter(chartConfiguration, morphologicalChart.getAbbreviatedConjugation());
+            AbbreviatedConjugationAdapter aca = abbreviatedConjugationFactory.creaAbbreviatedConjugationAdapter(
+                    chartConfiguration, morphologicalChart.getAbbreviatedConjugation());
             aca.buildDocument(mdp);
         }
 
         final DetailedConjugation detailedConjugation = morphologicalChart.getDetailedConjugation();
         final boolean omitDetailedConjugation = (detailedConjugation == null) || chartConfiguration.isOmitDetailedConjugation();
         if (!omitDetailedConjugation) {
-            DetailedConjugationAdapter dca = new DetailedConjugationAdapter(detailedConjugation);
+            DetailedConjugationAdapter dca = detailedConjugationFactory.createDetailedConjugationAdapter(detailedConjugation);
             dca.buildDocument(mdp);
         }
     }
@@ -71,7 +75,7 @@ public class MorphologicalChartEngine extends DocumentAdapter {
         final List<ConjugationData> data = conjugationTemplate.getData();
         final List<MorphologicalChart> morphologicalCharts = new ArrayList<>(data.size());
         for (ConjugationData conjugationData : data) {
-            MorphologicalChartSupplier supplier = new MorphologicalChartSupplier(conjugationData);
+            MorphologicalChartSupplier supplier = supplierFactory.createSupplier(conjugationData);
             morphologicalCharts.add(supplier.get());
         }
         return morphologicalCharts;
