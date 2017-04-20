@@ -1,16 +1,19 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.docx4j.wml.Tbl;
+import org.docx4j.wml.TcPr;
+
 import com.alphasystem.morphologicalanalysis.morphology.model.support.SarfTermType;
 import com.alphasystem.morphologicalengine.model.ConjugationTuple;
 import com.alphasystem.morphologicalengine.model.DetailedConjugation;
 import com.alphasystem.morphologicalengine.model.NounConjugationGroup;
-import com.alphasystem.morphologicalengine.model.NounDetailedConjugationPair;
 import com.alphasystem.morphologicalengine.model.VerbConjugationGroup;
-import com.alphasystem.morphologicalengine.model.VerbDetailedConjugationPair;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter.VerticalMergeType;
-import org.docx4j.wml.Tbl;
-import org.docx4j.wml.TcPr;
 
 import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.ARABIC_CAPTION_STYLE;
 import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.addSeparatorRow;
@@ -42,24 +45,19 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
     @Override
     protected Tbl getChart() {
         for (DetailedConjugation detailedConjugation : detailedConjugations) {
-            addTensePair(detailedConjugation.getActiveTensePair());
-            addNounPair(detailedConjugation.getActiveParticiplePair());
-            addNounPairs(detailedConjugation.getVerbalNounPairs());
-            addTensePair(detailedConjugation.getPassiveTensePair());
-            addNounPair(detailedConjugation.getPassiveParticiplePair());
-            addTensePair(detailedConjugation.getImperativeAndForbiddingPair());
-            addNounPairs(detailedConjugation.getAdverbPairs());
+            addTensePair(detailedConjugation.getPresentTense(), detailedConjugation.getPastTense());
+            addNounPair(detailedConjugation.getActiveParticipleFeminine(), detailedConjugation.getActiveParticipleMasculine());
+            addNounPairs(detailedConjugation.getVerbalNouns());
+            addTensePair(detailedConjugation.getPresentPassiveTense(), detailedConjugation.getPastPassiveTense());
+            addNounPair(detailedConjugation.getPassiveParticipleFeminine(), detailedConjugation.getPassiveParticipleMasculine());
+            addTensePair(detailedConjugation.getForbidding(), detailedConjugation.getImperative());
+            addNounPairs(detailedConjugation.getAdverbs());
         }
 
         return tableAdapter.getTable();
     }
 
-    private void addTensePair(VerbDetailedConjugationPair conjugationPair) {
-        if (conjugationPair == null) {
-            return;
-        }
-        final VerbConjugationGroup leftSideConjugations = conjugationPair.getLeftSideConjugations();
-        final VerbConjugationGroup rightSideConjugations = conjugationPair.getRightSideConjugations();
+    private void addTensePair(final VerbConjugationGroup leftSideConjugations, final VerbConjugationGroup rightSideConjugations) {
         final boolean noLeftConjugations = leftSideConjugations == null;
         final boolean noRightConjugations = rightSideConjugations == null;
 
@@ -89,12 +87,7 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
         addSeparatorRow(tableAdapter, NUM_OF_COLUMNS);
     }
 
-    private void addNounPair(NounDetailedConjugationPair conjugationPair) {
-        if (conjugationPair == null) {
-            return;
-        }
-        final NounConjugationGroup leftSideConjugations = conjugationPair.getLeftSideConjugations();
-        final NounConjugationGroup rightSideConjugations = conjugationPair.getRightSideConjugations();
+    private void addNounPair(final NounConjugationGroup leftSideConjugations, final NounConjugationGroup rightSideConjugations) {
         final boolean noLeftConjugations = leftSideConjugations == null;
         final boolean noRightConjugations = rightSideConjugations == null;
 
@@ -116,12 +109,22 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
         addSeparatorRow(tableAdapter, NUM_OF_COLUMNS);
     }
 
-    private void addNounPairs(NounDetailedConjugationPair[] conjugationPairs) {
+    private void addNounPairs(NounConjugationGroup[] conjugationPairs) {
         if (isEmpty(conjugationPairs)) {
             return;
         }
-        for (NounDetailedConjugationPair conjugationPair : conjugationPairs) {
-            addNounPair(conjugationPair);
+        List<NounConjugationGroup> list = new ArrayList<>();
+        Collections.addAll(list, conjugationPairs);
+        while (list.size() % 2 != 0) {
+            list.add(null);
+        }
+        int from = 0;
+        int to = 2;
+        while (from < list.size()){
+            final List<NounConjugationGroup> subList = list.subList(from, to);
+            addNounPair(subList.get(1), subList.get(0));
+            from = to;
+            to += 2;
         }
     }
 

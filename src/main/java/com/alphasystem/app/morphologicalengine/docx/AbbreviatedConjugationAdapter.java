@@ -1,15 +1,5 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
-import com.alphasystem.morphologicalengine.model.ConjugationHeader;
-import com.alphasystem.morphologicalengine.model.abbrvconj.ActiveLine;
-import com.alphasystem.morphologicalengine.model.abbrvconj.AdverbLine;
-import com.alphasystem.morphologicalengine.model.abbrvconj.ImperativeAndForbiddingLine;
-import com.alphasystem.morphologicalengine.model.abbrvconj.PassiveLine;
-import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
-import com.alphasystem.openxml.builder.wml.PBuilder;
-import com.alphasystem.openxml.builder.wml.WmlAdapter;
-import com.alphasystem.openxml.builder.wml.table.TableAdapter;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
 import org.docx4j.wml.ParaRPr;
@@ -19,7 +9,23 @@ import org.docx4j.wml.RPr;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Text;
 
-import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.*;
+import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
+import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
+import com.alphasystem.morphologicalengine.model.ConjugationHeader;
+import com.alphasystem.openxml.builder.wml.PBuilder;
+import com.alphasystem.openxml.builder.wml.WmlAdapter;
+import com.alphasystem.openxml.builder.wml.table.TableAdapter;
+
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.ADVERB_PREFIX;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.ARABIC_HEADING_STYLE;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.ARABIC_NORMAL_STYLE;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.COMMAND_PREFIX;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.FORBIDDING_PREFIX;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.PARTICIPLE_PREFIX;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.addSeparatorRow;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getArabicTextP;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getMultiWord;
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getNilBorderColumnProperties;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getText;
 import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.BOOLEAN_DEFAULT_TRUE_TRUE;
 import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.JC_CENTER;
@@ -79,9 +85,6 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
         final RPr rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
         final ConjugationHeader conjugationHeader = abbreviatedConjugation.getConjugationHeader();
         String title = conjugationHeader.getTitle();
-        if (title == null) {
-            title = getTitleWord(abbreviatedConjugation.getActiveLine());
-        }
         final Text text = getText(title);
         final R r = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
 
@@ -143,49 +146,39 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
     }
 
     private void addActiveLineRow(AbbreviatedConjugation abbreviatedConjugation) {
-        ActiveLine activeLine = abbreviatedConjugation.getActiveLine();
-        if (activeLine != null) {
-            tableAdapter
-                    .startRow()
-                    .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, activeLine.getActiveParticipleMasculine()))
-                    .addColumn(1, getArabicTextP(getMultiWord(activeLine.getVerbalNouns())))
-                    .addColumn(2, getArabicTextP(activeLine.getPresentTense()))
-                    .addColumn(3, getArabicTextP(activeLine.getPastTense()))
-                    .endRow();
-        }
+        tableAdapter
+                .startRow()
+                .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getActiveParticiple()))
+                .addColumn(1, getArabicTextP(getMultiWord(abbreviatedConjugation.getVerbalNouns())))
+                .addColumn(2, getArabicTextP(abbreviatedConjugation.getPresentTense()))
+                .addColumn(3, getArabicTextP(abbreviatedConjugation.getPastTense()))
+                .endRow();
     }
 
     private void addPassiveLine(AbbreviatedConjugation abbreviatedConjugation) {
-        PassiveLine passiveLine = abbreviatedConjugation.getPassiveLine();
-        if (passiveLine != null) {
-            tableAdapter
-                    .startRow()
-                    .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, passiveLine.getPassiveParticipleMasculine()))
-                    .addColumn(1, getArabicTextP(getMultiWord(passiveLine.getVerbalNouns())))
-                    .addColumn(2, getArabicTextP(passiveLine.getPresentPassiveTense()))
-                    .addColumn(3, getArabicTextP(passiveLine.getPastPassiveTense()))
-                    .endRow();
-        }
+        tableAdapter
+                .startRow()
+                .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getPassiveParticiple()))
+                .addColumn(1, getArabicTextP(getMultiWord(abbreviatedConjugation.getVerbalNouns())))
+                .addColumn(2, getArabicTextP(abbreviatedConjugation.getPresentPassiveTense()))
+                .addColumn(3, getArabicTextP(abbreviatedConjugation.getPastPassiveTense()))
+                .endRow();
     }
 
     private void addCommandLine(AbbreviatedConjugation abbreviatedConjugation) {
-        ImperativeAndForbiddingLine commandLine = abbreviatedConjugation.getImperativeAndForbiddingLine();
-        if (commandLine != null) {
-            tableAdapter
-                    .startRow()
-                    .addColumn(0, 2, null, getArabicTextP(FORBIDDING_PREFIX, commandLine.getForbidding()))
-                    .addColumn(2, 2, null, getArabicTextP(COMMAND_PREFIX, commandLine.getImperative())).endRow();
-        }
+        tableAdapter
+                .startRow()
+                .addColumn(0, 2, null, getArabicTextP(FORBIDDING_PREFIX,
+                        abbreviatedConjugation.getForbidding()))
+                .addColumn(2, 2, null, getArabicTextP(COMMAND_PREFIX,
+                        abbreviatedConjugation.getImperative())).endRow();
     }
 
     private void addAdverbLine(AbbreviatedConjugation abbreviatedConjugation) {
-        AdverbLine adverbLine = abbreviatedConjugation.getAdverbLine();
-        if (adverbLine != null) {
-            tableAdapter
-                    .startRow()
-                    .addColumn(0, 4, null, getArabicTextP(ADVERB_PREFIX, getMultiWord(adverbLine.getAdverbs())))
-                    .endRow();
-        }
+        tableAdapter
+                .startRow()
+                .addColumn(0, 4, null, getArabicTextP(ADVERB_PREFIX, getMultiWord(abbreviatedConjugation.getAdverbs())))
+                .endRow();
     }
 
 }
