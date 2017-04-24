@@ -148,7 +148,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
     private void addActiveLineRow(AbbreviatedConjugation abbreviatedConjugation) {
         tableAdapter
                 .startRow()
-                .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getActiveParticiple()))
+                .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getActiveParticipleMasculine()))
                 .addColumn(1, getArabicTextP(getMultiWord(abbreviatedConjugation.getVerbalNouns())))
                 .addColumn(2, getArabicTextP(abbreviatedConjugation.getPresentTense()))
                 .addColumn(3, getArabicTextP(abbreviatedConjugation.getPastTense()))
@@ -158,7 +158,7 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
     private void addPassiveLine(AbbreviatedConjugation abbreviatedConjugation) {
         tableAdapter
                 .startRow()
-                .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getPassiveParticiple()))
+                .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getPassiveParticipleMasculine()))
                 .addColumn(1, getArabicTextP(getMultiWord(abbreviatedConjugation.getVerbalNouns())))
                 .addColumn(2, getArabicTextP(abbreviatedConjugation.getPresentPassiveTense()))
                 .addColumn(3, getArabicTextP(abbreviatedConjugation.getPastPassiveTense()))
