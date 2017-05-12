@@ -1,22 +1,51 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import com.alphasystem.morphologicalengine.model.abbrvconj.ActiveLine;
+import java.nio.file.Path;
+
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.wml.CTTabStop;
+import org.docx4j.wml.Color;
+import org.docx4j.wml.P;
+import org.docx4j.wml.PPr;
+import org.docx4j.wml.PPrBase;
+import org.docx4j.wml.R;
+import org.docx4j.wml.RFonts;
+import org.docx4j.wml.RPr;
+import org.docx4j.wml.STLineSpacingRule;
+import org.docx4j.wml.STTabJc;
+import org.docx4j.wml.STTabTlc;
+import org.docx4j.wml.Style;
+import org.docx4j.wml.Styles;
+import org.docx4j.wml.Tabs;
+import org.docx4j.wml.TcPr;
+import org.docx4j.wml.Text;
+
 import com.alphasystem.arabic.model.ArabicWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.PageOrientation;
+import com.alphasystem.morphologicalengine.model.AbbreviatedRecord;
+import com.alphasystem.morphologicalengine.model.abbrvconj.ActiveLine;
 import com.alphasystem.openxml.builder.wml.PPrBuilder;
 import com.alphasystem.openxml.builder.wml.StylesBuilder;
 import com.alphasystem.openxml.builder.wml.WmlBuilderFactory;
 import com.alphasystem.openxml.builder.wml.WmlPackageBuilder;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter;
 import com.alphasystem.util.IdGenerator;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.docx4j.wml.*;
 
-import java.nio.file.Path;
-
-import static com.alphasystem.arabic.model.ArabicLetterType.*;
+import static com.alphasystem.arabic.model.ArabicLetterType.AIN;
+import static com.alphasystem.arabic.model.ArabicLetterType.ALIF;
+import static com.alphasystem.arabic.model.ArabicLetterType.ALIF_HAMZA_ABOVE;
+import static com.alphasystem.arabic.model.ArabicLetterType.DTHA;
+import static com.alphasystem.arabic.model.ArabicLetterType.FA;
+import static com.alphasystem.arabic.model.ArabicLetterType.HA;
+import static com.alphasystem.arabic.model.ArabicLetterType.LAM;
+import static com.alphasystem.arabic.model.ArabicLetterType.MEEM;
+import static com.alphasystem.arabic.model.ArabicLetterType.NOON;
+import static com.alphasystem.arabic.model.ArabicLetterType.RA;
+import static com.alphasystem.arabic.model.ArabicLetterType.SPACE;
+import static com.alphasystem.arabic.model.ArabicLetterType.WAW;
+import static com.alphasystem.arabic.model.ArabicLetterType.YA;
 import static com.alphasystem.arabic.model.ArabicLetters.WORD_SPACE;
 import static com.alphasystem.arabic.model.ArabicWord.getWord;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getNilBorders;
@@ -105,12 +134,12 @@ public final class WmlHelper {
         return pastTense + " " + presentTense;
     }
 
-    static String getMultiWord(String[] words) {
+    static String getMultiWord(AbbreviatedRecord[] words) {
         StringBuilder builder = new StringBuilder();
         if (isNotEmpty(words)) {
-            builder.append(words[0]);
+            builder.append(words[0].getLabel());
             for (int i = 1; i < words.length; i++) {
-                builder.append(WAW.toUnicode()).append(" ").append(words[i]);
+                builder.append(WAW.toUnicode()).append(" ").append(words[i].getLabel());
             }
         }
         return builder.toString();

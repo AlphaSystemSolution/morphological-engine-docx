@@ -1,5 +1,20 @@
 package com.alphasystem.app.morphologicalengine.docx.test;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationAdapter;
 import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationFactory;
 import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationAdapter;
@@ -19,22 +34,25 @@ import com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun
 import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
 import com.alphasystem.morphologicalengine.model.DetailedConjugation;
 import com.alphasystem.morphologicalengine.model.MorphologicalChart;
-import org.apache.commons.lang3.ArrayUtils;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-
-import static com.alphasystem.arabic.model.ArabicLetterType.*;
+import static com.alphasystem.arabic.model.ArabicLetterType.AIN;
+import static com.alphasystem.arabic.model.ArabicLetterType.DAL;
+import static com.alphasystem.arabic.model.ArabicLetterType.DDAD;
+import static com.alphasystem.arabic.model.ArabicLetterType.DTHA;
+import static com.alphasystem.arabic.model.ArabicLetterType.HAMZA;
+import static com.alphasystem.arabic.model.ArabicLetterType.KAF;
+import static com.alphasystem.arabic.model.ArabicLetterType.KHA;
+import static com.alphasystem.arabic.model.ArabicLetterType.LAM;
+import static com.alphasystem.arabic.model.ArabicLetterType.MEEM;
+import static com.alphasystem.arabic.model.ArabicLetterType.NOON;
+import static com.alphasystem.arabic.model.ArabicLetterType.QAF;
+import static com.alphasystem.arabic.model.ArabicLetterType.RA;
+import static com.alphasystem.arabic.model.ArabicLetterType.SAD;
+import static com.alphasystem.arabic.model.ArabicLetterType.SEEN;
+import static com.alphasystem.arabic.model.ArabicLetterType.THAL;
+import static com.alphasystem.arabic.model.ArabicLetterType.WAW;
+import static com.alphasystem.arabic.model.ArabicLetterType.ZAIN;
+import static com.alphasystem.arabic.model.NamedTemplate.FORM_II_TEMPLATE;
 import static com.alphasystem.arabic.model.NamedTemplate.FORM_IV_TEMPLATE;
 import static com.alphasystem.arabic.model.NamedTemplate.FORM_IX_TEMPLATE;
 import static com.alphasystem.arabic.model.NamedTemplate.FORM_I_CATEGORY_A_GROUP_I_TEMPLATE;
@@ -173,6 +191,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
                 new RootLetters(QAF, WAW, LAM), VERBAL_NOUN_V1));
         conjugationTemplate.withData(getConjugationData(FORM_I_CATEGORY_A_GROUP_U_TEMPLATE, "To Eat",
                 new RootLetters(HAMZA, KAF, LAM), VERBAL_NOUN_V1));
+        conjugationTemplate.withData(getConjugationData(FORM_II_TEMPLATE, "To know", new RootLetters(AIN, LAM, MEEM)));
         conjugationTemplate.withData(getConjugationData(FORM_IV_TEMPLATE, "To submit", new RootLetters(SEEN, LAM, MEEM)));
         conjugationTemplate.withData(getConjugationData(FORM_IV_TEMPLATE, "To send down", new RootLetters(NOON, ZAIN, LAM)));
         conjugationTemplate.withData(getConjugationData(FORM_IV_TEMPLATE, "To Establish", new RootLetters(QAF, WAW, MEEM)));
