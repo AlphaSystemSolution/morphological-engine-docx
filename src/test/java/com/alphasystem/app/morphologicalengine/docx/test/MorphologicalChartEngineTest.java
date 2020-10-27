@@ -73,7 +73,7 @@ import static org.testng.Reporter.log;
 @ContextConfiguration(classes = {MorphologicalEngineConfiguration.class, MorphologicalChartConfiguration.class})
 public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTests {
 
-    private static Path parentDocDir = null;
+    private static final Path parentDocDir;
 
     static {
         parentDocDir = get(getProperty("target.dir"), "docs");
@@ -92,9 +92,12 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
         }
     }
 
-    @Autowired private MorphologicalChartEngineFactory morphologicalChartEngineFactory;
-    @Autowired private AbbreviatedConjugationFactory abbreviatedConjugationFactory;
-    @Autowired private DetailedConjugationFactory detailedConjugationFactory;
+    @Autowired
+    private MorphologicalChartEngineFactory morphologicalChartEngineFactory;
+    @Autowired
+    private AbbreviatedConjugationFactory abbreviatedConjugationFactory;
+    @Autowired
+    private DetailedConjugationFactory detailedConjugationFactory;
 
     @Test
     public void testCreateEmptyDocument() {
@@ -103,7 +106,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
         MorphologicalChartEngine morphologicalChartEngine = morphologicalChartEngineFactory.createMorphologicalChartEngine(null);
         try {
             morphologicalChartEngine.createDocument(path);
-            Assert.assertEquals(Files.exists(path), true);
+            Assert.assertTrue(Files.exists(path));
         } catch (Docx4JException e) {
             fail(format("Failed to create document {%s}", path), e);
         }
@@ -124,7 +127,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
 
     @Test(dependsOnMethods = {"runConjugationBuilder"})
     public void buildAbbreviatedConjugations() {
-        ChartConfiguration chartConfiguration = getChartConfiguration().omitToc(true).omitDetailedConjugation(true);
+        final ChartConfiguration chartConfiguration = getChartConfiguration().omitToc(true).omitDetailedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
         MorphologicalChartEngine engine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
         List<MorphologicalChart> charts = engine.createMorphologicalCharts();
@@ -173,12 +176,11 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
 
     private ChartConfiguration getChartConfiguration() {
         ChartConfiguration chartConfiguration = new ChartConfiguration();
-        chartConfiguration.setArabicFontFamily(FontUtilities.getDefaultArabicFontName());
-        chartConfiguration.setArabicFontSize(FontUtilities.DEFAULT_ARABIC_FONT_SIZE);
-        chartConfiguration.setHeadingFontSize(FontUtilities.DEFAULT_ARABIC_FONT_SIZE);
-        chartConfiguration.setTranslationFontFamily(FontUtilities.getDefaultEnglishFont());
+        chartConfiguration.setArabicFontFamily(FontUtilities.defaultArabicFontName);
+        chartConfiguration.setArabicFontSize(FontUtilities.defaultArabicRegularFontSize);
+        chartConfiguration.setHeadingFontSize(FontUtilities.defaultArabicHeadingFontSize);
+        chartConfiguration.setTranslationFontFamily(FontUtilities.defaultEnglishFontName);
         chartConfiguration.setTranslationFontSize(FontUtilities.DEFAULT_ENGLISH_FONT_SIZE);
-        chartConfiguration.setHeadingFontSize(36L);
         return chartConfiguration;
     }
 

@@ -2,34 +2,19 @@ package com.alphasystem.app.morphologicalengine.docx;
 
 import java.nio.file.Path;
 
+import com.alphasystem.openxml.builder.wml.*;
+import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.docx4j.wml.CTTabStop;
-import org.docx4j.wml.Color;
-import org.docx4j.wml.P;
-import org.docx4j.wml.PPr;
-import org.docx4j.wml.PPrBase;
-import org.docx4j.wml.R;
-import org.docx4j.wml.RFonts;
-import org.docx4j.wml.RPr;
-import org.docx4j.wml.STLineSpacingRule;
-import org.docx4j.wml.STTabJc;
-import org.docx4j.wml.STTabTlc;
-import org.docx4j.wml.Style;
-import org.docx4j.wml.Styles;
-import org.docx4j.wml.Tabs;
-import org.docx4j.wml.TcPr;
-import org.docx4j.wml.Text;
+import org.docx4j.openpackaging.parts.WordprocessingML.DocumentSettingsPart;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.docx4j.wml.*;
 
 import com.alphasystem.arabic.model.ArabicWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.PageOrientation;
 import com.alphasystem.morphologicalengine.model.AbbreviatedRecord;
 import com.alphasystem.morphologicalengine.model.abbrvconj.ActiveLine;
-import com.alphasystem.openxml.builder.wml.PPrBuilder;
-import com.alphasystem.openxml.builder.wml.StylesBuilder;
-import com.alphasystem.openxml.builder.wml.WmlBuilderFactory;
-import com.alphasystem.openxml.builder.wml.WmlPackageBuilder;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter;
 import com.alphasystem.util.IdGenerator;
 
@@ -82,7 +67,9 @@ public final class WmlHelper {
     static final ArabicWord FORBIDDING_PREFIX = getWord(WAW, NOON, HA, YA, SPACE, AIN, NOON, HA);
     static final ArabicWord ADVERB_PREFIX = getWord(WAW, ALIF, LAM, DTHA, RA, FA, SPACE, MEEM, NOON, HA);
 
-    public static void createDocument(Path path, ChartConfiguration chartConfiguration, DocumentAdapter documentAdapter) throws Docx4JException {
+    public static void createDocument(Path path,
+                                      ChartConfiguration chartConfiguration,
+                                      DocumentAdapter documentAdapter) throws Docx4JException {
         final String fontFamily = chartConfiguration.getArabicFontFamily();
         long normalFontSize = chartConfiguration.getArabicFontSize() * 2;
         long headingFontSize = chartConfiguration.getHeadingFontSize() * 2;
@@ -91,7 +78,19 @@ public final class WmlHelper {
 
         final WordprocessingMLPackage wordMLPackage = WmlPackageBuilder.createPackage(landscape).styles(
                 createStyles(fontFamily, normalFontSize, headingFontSize)).getPackage();
-        documentAdapter.buildDocument(wordMLPackage.getMainDocumentPart());
+        final MainDocumentPart mainDocumentPart = wordMLPackage.getMainDocumentPart();
+
+        // Hack to set Arabic font for TOC styles
+        final Style toc1 = mainDocumentPart.getStyleDefinitionsPart().getStyleById("TOC1");
+        if(toc1 != null) {
+            final RFonts rFonts = getRFontsBuilder().withCs(fontFamily).withAscii(fontFamily).withHAnsi(fontFamily)
+                    .withEastAsiaTheme(STTheme.MAJOR_EAST_ASIA).getObject();
+            final RPrBuilder rPrBuilder = getRPrBuilder(toc1.getRPr()).withRFonts(rFonts);
+            toc1.setRPr(rPrBuilder.getObject());
+        }
+
+        updateDocumentCompatibility(mainDocumentPart);
+        documentAdapter.buildDocument(mainDocumentPart);
         save(path.toFile(), wordMLPackage);
     }
 
@@ -279,14 +278,15 @@ public final class WmlHelper {
     }
 
     private static Style createArabicTocStyle(String family) {
-        CTTabStop tab = WmlBuilderFactory.getCTTabStopBuilder().withVal(STTabJc.RIGHT).withLeader(STTabTlc.DOT)
+        final CTTabStop tab = WmlBuilderFactory.getCTTabStopBuilder().withVal(STTabJc.RIGHT).withLeader(STTabTlc.DOT)
                 .withPos(9017L).getObject();
-        Tabs tabs = WmlBuilderFactory.getTabsBuilder().addTab(tab).getObject();
-        PPr ppr = getPPrBuilder().withTabs(tabs).getObject();
-        RFonts rFonts = getRFontsBuilder().withCs(family).getObject();
-        RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
+        final Tabs tabs = WmlBuilderFactory.getTabsBuilder().addTab(tab).getObject();
+        final PPr ppr = getPPrBuilder().withTabs(tabs).getObject();
+        final RFonts rFonts = getRFontsBuilder().withCs(family).withAscii(family).withHAnsi(family)
+                .withEastAsiaTheme(STTheme.MAJOR_EAST_ASIA).getObject();
+        final RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
         return getStyleBuilder().withType("paragraph").withStyleId("TOCArabic").withCustomStyle(true)
-                .withName("TOC Arabic").withBasedOn("TOC1").withQFormat(true).withRsid(IdGenerator.nextId())
+                .withName("TOCArabic").withBasedOn("TOC1").withQFormat(true).withRsid(IdGenerator.nextId())
                 .withPPr(ppr).withRPr(rpr).getObject();
     }
 
@@ -306,5 +306,17 @@ public final class WmlHelper {
         return getStyleBuilder().withType("paragraph").withStyleId("Arabic-Prefix").withCustomStyle(true)
                 .withName("Arabic-Prefix").withLink("Arabic-PrefixChar").withBasedOn("Arabic-Table-Center")
                 .withRsid("005B3CB5").withRPr(rpr).getObject();
+    }
+
+    private static void updateDocumentCompatibility(MainDocumentPart mainDocumentPart) {
+        try {
+            final DocumentSettingsPart dsp = mainDocumentPart.getDocumentSettingsPart(true);
+            final CTCompat compat = Context.getWmlObjectFactory().createCTCompat();
+            compat.setCompatSetting("compatibilityMode", "http://schemas.microsoft.com/office/word", "15");
+            dsp.getContents().setCompat(compat);
+        }catch (Exception ex) {
+            // ignore
+            ex.printStackTrace();
+        }
     }
 }
