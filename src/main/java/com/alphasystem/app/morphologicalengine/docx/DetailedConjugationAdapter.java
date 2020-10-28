@@ -1,12 +1,5 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.docx4j.wml.Tbl;
-import org.docx4j.wml.TcPr;
-
 import com.alphasystem.morphologicalanalysis.morphology.model.support.SarfTermType;
 import com.alphasystem.morphologicalengine.model.ConjugationTuple;
 import com.alphasystem.morphologicalengine.model.DetailedConjugation;
@@ -14,13 +7,14 @@ import com.alphasystem.morphologicalengine.model.NounConjugationGroup;
 import com.alphasystem.morphologicalengine.model.VerbConjugationGroup;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter.VerticalMergeType;
+import org.docx4j.wml.Tbl;
+import org.docx4j.wml.TcPr;
 
-import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.ARABIC_CAPTION_STYLE;
-import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.addSeparatorRow;
-import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.createNoSpacingStyleP;
-import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getArabicTextP;
-import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getArabicTextPWithStyle;
-import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getNilBorderColumnProperties;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.*;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 /**
@@ -120,7 +114,7 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
         }
         int from = 0;
         int to = 2;
-        while (from < list.size()){
+        while (from < list.size()) {
             final List<NounConjugationGroup> subList = list.subList(from, to);
             addNounPair(subList.get(1), subList.get(0));
             from = to;
@@ -133,44 +127,45 @@ public final class DetailedConjugationAdapter extends ChartAdapter {
         TcPr rightTcPr = getColumnProperties(rightSideCaption);
         final String leftSideCaptionValue = (leftSideCaption == null) ? null : leftSideCaption.toLabel().toUnicode();
         final String rightSideCaptionValue = (rightSideCaption == null) ? null : rightSideCaption.toLabel().toUnicode();
-        tableAdapter.startRow()
+        tableAdapter
+                .startRow()
                 .addColumn(0, 3, leftTcPr, getArabicTextPWithStyle(leftSideCaptionValue, ARABIC_CAPTION_STYLE))
                 .addColumn(3, (Integer) null, VerticalMergeType.RESTART, getColumnProperties(null), createNoSpacingStyleP())
-                .addColumn(4, 3, rightTcPr, getArabicTextPWithStyle(rightSideCaptionValue, ARABIC_CAPTION_STYLE)).endRow();
+                .addColumn(4, 3, rightTcPr, getArabicTextPWithStyle(rightSideCaptionValue, ARABIC_CAPTION_STYLE))
+                .endRow();
     }
 
     private void addConjugationRow(ConjugationTuple leftConjugationTuple, ConjugationTuple rightConjugationTuple) {
         if (leftConjugationTuple == null && rightConjugationTuple == null) {
             return;
         }
+
         tableAdapter.startRow();
-
-        boolean empty = leftConjugationTuple == null;
-        TcPr tcPr = empty ? getNilBorderColumnProperties() : null;
-        String value = empty ? null : leftConjugationTuple.getPlural();
-        tableAdapter.addColumn(0, tcPr, getArabicTextP(value));
-
-        value = empty ? null : leftConjugationTuple.getDual();
-        tableAdapter.addColumn(1, tcPr, getArabicTextP(value));
-
-        value = empty ? null : leftConjugationTuple.getSingular();
-        tableAdapter.addColumn(2, tcPr, getArabicTextP(value));
-
-        tcPr = getNilBorderColumnProperties();
-        tableAdapter.addColumn(3, (Integer) null, VerticalMergeType.CONTINUE, tcPr, createNoSpacingStyleP());
-
-        empty = rightConjugationTuple == null;
-        tcPr = empty ? getNilBorderColumnProperties() : null;
-        value = empty ? null : rightConjugationTuple.getPlural();
-        tableAdapter.addColumn(4, tcPr, getArabicTextP(value));
-
-        value = empty ? null : rightConjugationTuple.getDual();
-        tableAdapter.addColumn(5, tcPr, getArabicTextP(value));
-
-        value = empty ? null : rightConjugationTuple.getSingular();
-        tableAdapter.addColumn(6, tcPr, getArabicTextP(value));
-
+        int columnIndex = addConjugationColumns(leftConjugationTuple, 0);
+        tableAdapter.addColumn(columnIndex += 1, (Integer) null, VerticalMergeType.CONTINUE, getNilBorderColumnProperties(),
+                createNoSpacingStyleP());
+        addConjugationColumns(rightConjugationTuple, columnIndex + 1);
         tableAdapter.endRow();
+    }
+
+    private int addConjugationColumns(ConjugationTuple conjugationTuple, int beginColumnIndex) {
+        int columnIndex = beginColumnIndex;
+        if (conjugationTuple == null) {
+            tableAdapter.addColumn(columnIndex, getNilBorderColumnProperties(), getArabicTextP(null));
+            tableAdapter.addColumn(columnIndex += 1, getNilBorderColumnProperties(), getArabicTextP(null));
+            tableAdapter.addColumn(columnIndex += 1, getNilBorderColumnProperties(), getArabicTextP(null));
+        } else {
+            String dualValue = conjugationTuple.getDual();
+            int gridSpan = dualValue == null ? 2 : 1;
+            tableAdapter.addColumn(columnIndex, gridSpan, getArabicTextP(conjugationTuple.getPlural()));
+
+            if (dualValue != null) {
+                tableAdapter.addColumn(columnIndex += 1, getArabicTextP(dualValue));
+            }
+
+            tableAdapter.addColumn(columnIndex += gridSpan, getArabicTextP(conjugationTuple.getSingular()));
+        }
+        return columnIndex;
     }
 
 }
