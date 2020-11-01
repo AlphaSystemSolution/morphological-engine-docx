@@ -8,6 +8,6 @@ import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
  */
 public interface AbbreviatedConjugationFactory {
 
-    AbbreviatedConjugationAdapter creaAbbreviatedConjugationAdapter(ChartConfiguration chartConfiguration,
-                                                                    AbbreviatedConjugation... abbreviatedConjugations);
+    AbbreviatedConjugationAdapter createAbbreviatedConjugationAdapter(ChartConfiguration chartConfiguration,
+                                                                      AbbreviatedConjugation... abbreviatedConjugations);
 }

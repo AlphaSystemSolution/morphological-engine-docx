@@ -138,7 +138,7 @@ public final class WmlHelper {
         if (isNotEmpty(words)) {
             builder.append(words[0].getLabel());
             for (int i = 1; i < words.length; i++) {
-                builder.append(WAW.toUnicode()).append(" ").append(words[i].getLabel());
+                builder.append(" ").append(WAW.toUnicode()).append(" ").append(words[i].getLabel());
             }
         }
         return builder.toString();

@@ -35,30 +35,8 @@ import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
 import com.alphasystem.morphologicalengine.model.DetailedConjugation;
 import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 
-import static com.alphasystem.arabic.model.ArabicLetterType.AIN;
-import static com.alphasystem.arabic.model.ArabicLetterType.DAL;
-import static com.alphasystem.arabic.model.ArabicLetterType.DDAD;
-import static com.alphasystem.arabic.model.ArabicLetterType.DTHA;
-import static com.alphasystem.arabic.model.ArabicLetterType.HAMZA;
-import static com.alphasystem.arabic.model.ArabicLetterType.KAF;
-import static com.alphasystem.arabic.model.ArabicLetterType.KHA;
-import static com.alphasystem.arabic.model.ArabicLetterType.LAM;
-import static com.alphasystem.arabic.model.ArabicLetterType.MEEM;
-import static com.alphasystem.arabic.model.ArabicLetterType.NOON;
-import static com.alphasystem.arabic.model.ArabicLetterType.QAF;
-import static com.alphasystem.arabic.model.ArabicLetterType.RA;
-import static com.alphasystem.arabic.model.ArabicLetterType.SAD;
-import static com.alphasystem.arabic.model.ArabicLetterType.SEEN;
-import static com.alphasystem.arabic.model.ArabicLetterType.THAL;
-import static com.alphasystem.arabic.model.ArabicLetterType.WAW;
-import static com.alphasystem.arabic.model.ArabicLetterType.ZAIN;
-import static com.alphasystem.arabic.model.NamedTemplate.FORM_II_TEMPLATE;
-import static com.alphasystem.arabic.model.NamedTemplate.FORM_IV_TEMPLATE;
-import static com.alphasystem.arabic.model.NamedTemplate.FORM_IX_TEMPLATE;
-import static com.alphasystem.arabic.model.NamedTemplate.FORM_I_CATEGORY_A_GROUP_I_TEMPLATE;
-import static com.alphasystem.arabic.model.NamedTemplate.FORM_I_CATEGORY_A_GROUP_U_TEMPLATE;
-import static com.alphasystem.arabic.model.NamedTemplate.FORM_VIII_TEMPLATE;
-import static com.alphasystem.arabic.model.NamedTemplate.FORM_VII_TEMPLATE;
+import static com.alphasystem.arabic.model.ArabicLetterType.*;
+import static com.alphasystem.arabic.model.NamedTemplate.*;
 import static com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun.VERBAL_NOUN_V1;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
@@ -140,7 +118,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
         for (int i = 0; i < charts.size(); i++) {
             abbreviatedConjugations[i] = charts.get(i).getAbbreviatedConjugation();
         }
-        AbbreviatedConjugationAdapter aca = abbreviatedConjugationFactory.creaAbbreviatedConjugationAdapter(chartConfiguration,
+        AbbreviatedConjugationAdapter aca = abbreviatedConjugationFactory.createAbbreviatedConjugationAdapter(chartConfiguration,
                 abbreviatedConjugations);
         try {
             WmlHelper.createDocument(path, chartConfiguration, aca);
@@ -194,6 +172,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
         conjugationTemplate.withData(getConjugationData(FORM_I_CATEGORY_A_GROUP_U_TEMPLATE, "To Eat",
                 new RootLetters(HAMZA, KAF, LAM), VERBAL_NOUN_V1));
         conjugationTemplate.withData(getConjugationData(FORM_II_TEMPLATE, "To know", new RootLetters(AIN, LAM, MEEM)));
+        conjugationTemplate.withData(getConjugationData(FORM_III_TEMPLATE, "To struggle", new RootLetters(JEEM, HA, DAL)));
         conjugationTemplate.withData(getConjugationData(FORM_IV_TEMPLATE, "To submit", new RootLetters(SEEN, LAM, MEEM)));
         conjugationTemplate.withData(getConjugationData(FORM_IV_TEMPLATE, "To send down", new RootLetters(NOON, ZAIN, LAM)));
         conjugationTemplate.withData(getConjugationData(FORM_IV_TEMPLATE, "To Establish", new RootLetters(QAF, WAW, MEEM)));

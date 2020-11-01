@@ -58,7 +58,7 @@ public class MorphologicalChartEngine extends DocumentAdapter {
         final AbbreviatedConjugation abbreviatedConjugation = morphologicalChart.getAbbreviatedConjugation();
         final boolean omitAbbreviatedConjugation = (abbreviatedConjugation == null) || chartConfiguration.isOmitAbbreviatedConjugation();
         if (!omitAbbreviatedConjugation) {
-            AbbreviatedConjugationAdapter aca = abbreviatedConjugationFactory.creaAbbreviatedConjugationAdapter(
+            AbbreviatedConjugationAdapter aca = abbreviatedConjugationFactory.createAbbreviatedConjugationAdapter(
                     chartConfiguration, morphologicalChart.getAbbreviatedConjugation());
             aca.buildDocument(mdp);
         }
