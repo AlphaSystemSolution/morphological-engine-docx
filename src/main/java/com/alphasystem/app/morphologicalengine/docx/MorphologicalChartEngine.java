@@ -7,8 +7,11 @@ import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
 import com.alphasystem.morphologicalengine.model.DetailedConjugation;
 import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import com.alphasystem.openxml.builder.wml.TocGenerator;
+import com.alphasystem.openxml.builder.wml.WmlAdapter;
+import com.alphasystem.openxml.builder.wml.WmlBuilderFactory;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.docx4j.wml.P;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -45,13 +48,21 @@ public class MorphologicalChartEngine extends DocumentAdapter {
             return;
         }
         final ChartConfiguration chartConfiguration = conjugationTemplate.getChartConfiguration();
-        if (!chartConfiguration.isOmitAbbreviatedConjugation() && !chartConfiguration.isOmitToc()) {
-            TocGenerator tocGenerator = new TocGenerator().tocHeading("Table of Contents").mainDocumentPart(mdp)
-                    .instruction(" TOC \\o \"1-3\" \\h \\z \\t \"Arabic-Heading1,1\" ").tocStyle("TOCArabic");
-            tocGenerator.generateToc();
+        final boolean addToc = !chartConfiguration.isOmitAbbreviatedConjugation() && !chartConfiguration.isOmitToc();
+        final String tocHeading = "Table of Contents";
+        final String bookmarkName = tocHeading.replaceAll(" ", "_").toLowerCase();
+        if (addToc) {
+            new TocGenerator().tocHeading(tocHeading).mainDocumentPart(mdp)
+                    .instruction(" TOC \\o \"1-3\" \\h \\z \\t \"Arabic-Heading1,1\" ").tocStyle("TOCArabic")
+                    .generateToc();
         }
         final List<MorphologicalChart> charts = createMorphologicalCharts();
-        charts.forEach(morphologicalChart -> addToDocument(mdp, chartConfiguration, morphologicalChart));
+        charts.forEach(morphologicalChart -> {
+            addToDocument(mdp, chartConfiguration, morphologicalChart);
+            if (addToc) {
+                addBackLink(mdp, bookmarkName);
+            }
+        });
     }
 
     private void addToDocument(MainDocumentPart mdp, ChartConfiguration chartConfiguration, MorphologicalChart morphologicalChart) {
@@ -69,6 +80,12 @@ public class MorphologicalChartEngine extends DocumentAdapter {
             DetailedConjugationAdapter dca = detailedConjugationFactory.createDetailedConjugationAdapter(detailedConjugation);
             dca.buildDocument(mdp);
         }
+    }
+
+    private void addBackLink(MainDocumentPart mdp, String bookmarkName) {
+        final P.Hyperlink backLink = WmlAdapter.addHyperlink(bookmarkName, "Back to Top");
+        final P p = WmlBuilderFactory.getPBuilder().addContent(backLink).getObject();
+        mdp.addObject(p);
     }
 
     public List<MorphologicalChart> createMorphologicalCharts() {
