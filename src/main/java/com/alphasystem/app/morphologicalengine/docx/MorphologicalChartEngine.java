@@ -28,6 +28,7 @@ public class MorphologicalChartEngine extends DocumentAdapter {
     private final DetailedConjugationFactory detailedConjugationFactory;
     private final SupplierFactory supplierFactory;
     private final ConjugationTemplate conjugationTemplate;
+    private final ChartConfiguration chartConfiguration;
 
     MorphologicalChartEngine(AbbreviatedConjugationFactory abbreviatedConjugationFactory,
                              DetailedConjugationFactory detailedConjugationFactory,
@@ -37,24 +38,29 @@ public class MorphologicalChartEngine extends DocumentAdapter {
         this.detailedConjugationFactory = detailedConjugationFactory;
         this.supplierFactory = supplierFactory;
         this.conjugationTemplate = conjugationTemplate;
+        chartConfiguration = (conjugationTemplate == null) ? new ChartConfiguration() :
+                conjugationTemplate.getChartConfiguration();
+    }
+
+    @Override
+    public ChartConfiguration getChartConfiguration() {
+        return chartConfiguration;
     }
 
     public void createDocument(Path path) throws Docx4JException {
-        final ChartConfiguration chartConfiguration = (conjugationTemplate == null) ? new ChartConfiguration() :
-                conjugationTemplate.getChartConfiguration();
-        WmlHelper.createDocument(path, chartConfiguration, this);
+        WmlHelper.createDocument(path, this);
         if (!chartConfiguration.isOmitAbbreviatedConjugation() && !chartConfiguration.isOmitDetailedConjugation()) {
             ChartConfiguration ch = new ChartConfiguration(chartConfiguration)
                     .omitDetailedConjugation(true)
                     .omitToc(true);
-            WmlHelper.createDocument(toPath(path, "Abbreviated"), ch,
+            WmlHelper.createDocument(toPath(path, "Abbreviated"),
                     new MorphologicalChartEngine(abbreviatedConjugationFactory, detailedConjugationFactory, supplierFactory,
                             new ConjugationTemplate(conjugationTemplate).withChartConfiguration(ch)));
 
             ch = ch.omitAbbreviatedConjugation(true).omitDetailedConjugation(false);
-            WmlHelper.createDocument(toPath(path, "Detailed"), ch,
+            WmlHelper.createDocument(toPath(path, "Detailed"),
                     new MorphologicalChartEngine(abbreviatedConjugationFactory, detailedConjugationFactory, supplierFactory,
-                    new ConjugationTemplate(conjugationTemplate).withChartConfiguration(ch)));
+                            new ConjugationTemplate(conjugationTemplate).withChartConfiguration(ch)));
         }
     }
 

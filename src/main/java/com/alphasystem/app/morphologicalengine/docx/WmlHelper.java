@@ -43,9 +43,8 @@ public final class WmlHelper {
     static final ArabicWord FORBIDDING_PREFIX = getWord(WAW, NOON, HA, YA, SPACE, AIN, NOON, HA);
     static final ArabicWord ADVERB_PREFIX = getWord(WAW, ALIF, LAM, DTHA, RA, FA, SPACE, MEEM, NOON, HA);
 
-    public static void createDocument(Path path,
-                                      ChartConfiguration chartConfiguration,
-                                      DocumentAdapter documentAdapter) throws Docx4JException {
+    public static void createDocument(Path path, DocumentAdapter documentAdapter) throws Docx4JException {
+        final ChartConfiguration chartConfiguration = documentAdapter.getChartConfiguration();
         final String fontFamily = chartConfiguration.getArabicFontFamily();
         long normalFontSize = chartConfiguration.getArabicFontSize() * 2;
         long headingFontSize = chartConfiguration.getHeadingFontSize() * 2;
@@ -58,7 +57,7 @@ public final class WmlHelper {
 
         // Hack to set Arabic font for TOC styles
         final Style toc1 = mainDocumentPart.getStyleDefinitionsPart().getStyleById("TOC1");
-        if(toc1 != null) {
+        if (toc1 != null) {
             final RFonts rFonts = getRFontsBuilder().withCs(fontFamily).withAscii(fontFamily).withHAnsi(fontFamily)
                     .withEastAsiaTheme(STTheme.MAJOR_EAST_ASIA).getObject();
             final RPrBuilder rPrBuilder = getRPrBuilder(toc1.getRPr()).withRFonts(rFonts);
@@ -264,7 +263,7 @@ public final class WmlHelper {
             final CTCompat compat = Context.getWmlObjectFactory().createCTCompat();
             compat.setCompatSetting("compatibilityMode", "http://schemas.microsoft.com/office/word", "15");
             dsp.getContents().setCompat(compat);
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             // ignore
             ex.printStackTrace();
         }

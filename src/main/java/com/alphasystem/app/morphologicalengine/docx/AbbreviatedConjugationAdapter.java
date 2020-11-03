@@ -56,6 +56,11 @@ public final class AbbreviatedConjugationAdapter extends ChartAdapter {
 	}
 
 	@Override
+	public ChartConfiguration getChartConfiguration() {
+		return chartConfiguration;
+	}
+
+	@Override
 	protected Tbl getChart() {
 		for (AbbreviatedConjugation abbreviatedConjugation : abbreviatedConjugations) {
 			if (!chartConfiguration.isOmitTitle()) {
