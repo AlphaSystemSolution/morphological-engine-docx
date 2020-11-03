@@ -1,28 +1,6 @@
 package com.alphasystem.app.morphologicalengine.docx.test;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationAdapter;
-import com.alphasystem.app.morphologicalengine.docx.AbbreviatedConjugationFactory;
-import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationAdapter;
-import com.alphasystem.app.morphologicalengine.docx.DetailedConjugationFactory;
-import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartConfiguration;
-import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngine;
-import com.alphasystem.app.morphologicalengine.docx.MorphologicalChartEngineFactory;
-import com.alphasystem.app.morphologicalengine.docx.WmlHelper;
+import com.alphasystem.app.morphologicalengine.docx.*;
 import com.alphasystem.app.morphologicalengine.spring.MorphologicalEngineConfiguration;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.arabic.ui.util.FontUtilities;
@@ -31,9 +9,19 @@ import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationTemplate;
 import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun;
-import com.alphasystem.morphologicalengine.model.AbbreviatedConjugation;
-import com.alphasystem.morphologicalengine.model.DetailedConjugation;
-import com.alphasystem.morphologicalengine.model.MorphologicalChart;
+import org.apache.commons.lang3.ArrayUtils;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 
 import static com.alphasystem.arabic.model.ArabicLetterType.*;
 import static com.alphasystem.arabic.model.NamedTemplate.*;
@@ -41,7 +29,6 @@ import static com.alphasystem.morphologicalanalysis.morphology.model.support.Ver
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
 import static java.nio.file.Paths.get;
-import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 import static org.testng.Reporter.log;
 
@@ -72,10 +59,6 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
 
     @Autowired
     private MorphologicalChartEngineFactory morphologicalChartEngineFactory;
-    @Autowired
-    private AbbreviatedConjugationFactory abbreviatedConjugationFactory;
-    @Autowired
-    private DetailedConjugationFactory detailedConjugationFactory;
 
     @Test
     public void testCreateEmptyDocument() {
@@ -107,21 +90,10 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     public void buildAbbreviatedConjugations() {
         final ChartConfiguration chartConfiguration = getChartConfiguration().omitToc(true).omitDetailedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
-        MorphologicalChartEngine engine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
-        List<MorphologicalChart> charts = engine.createMorphologicalCharts();
-        final MorphologicalChart chart = charts.get(0);
-        assertNotNull(chart);
-
+        MorphologicalChartEngine morphologicalChartEngine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
         final Path path = get(parentDocDir.toString(), "abbreviated-conjugations.docx");
-
-        AbbreviatedConjugation[] abbreviatedConjugations = new AbbreviatedConjugation[charts.size()];
-        for (int i = 0; i < charts.size(); i++) {
-            abbreviatedConjugations[i] = charts.get(i).getAbbreviatedConjugation();
-        }
-        AbbreviatedConjugationAdapter aca = abbreviatedConjugationFactory.createAbbreviatedConjugationAdapter(chartConfiguration,
-                abbreviatedConjugations);
         try {
-            WmlHelper.createDocument(path, chartConfiguration, aca);
+            morphologicalChartEngine.createDocument(path);
         } catch (Docx4JException e) {
             fail(format("Failed to create document {%s}", path), e);
         }
@@ -132,20 +104,10 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
     public void buildDetailConjugations() {
         ChartConfiguration chartConfiguration = getChartConfiguration().omitAbbreviatedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
-        MorphologicalChartEngine engine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
-        List<MorphologicalChart> charts = engine.createMorphologicalCharts();
-        final MorphologicalChart chart = charts.get(0);
-        assertNotNull(chart);
-
+        MorphologicalChartEngine morphologicalChartEngine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
         final Path path = get(parentDocDir.toString(), "detail-conjugations.docx");
-
-        DetailedConjugation[] detailedConjugations = new DetailedConjugation[charts.size()];
-        for (int i = 0; i < charts.size(); i++) {
-            detailedConjugations[i] = charts.get(i).getDetailedConjugation();
-        }
-        DetailedConjugationAdapter dca = detailedConjugationFactory.createDetailedConjugationAdapter(detailedConjugations);
         try {
-            WmlHelper.createDocument(path, chartConfiguration, dca);
+            morphologicalChartEngine.createDocument(path);
         } catch (Docx4JException e) {
             fail(format("Failed to create document {%s}", path), e);
         }
