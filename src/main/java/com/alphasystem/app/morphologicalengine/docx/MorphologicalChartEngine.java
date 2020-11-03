@@ -57,12 +57,16 @@ public class MorphologicalChartEngine extends DocumentAdapter {
                     .generateToc();
         }
         final List<MorphologicalChart> charts = createMorphologicalCharts();
-        charts.forEach(morphologicalChart -> {
-            addToDocument(mdp, chartConfiguration, morphologicalChart);
-            if (addToc) {
-                addBackLink(mdp, bookmarkName);
-            }
-        });
+        if (!charts.isEmpty()) {
+            addToDocument(mdp, chartConfiguration, charts.get(0));
+            charts.stream().skip(1).forEach(morphologicalChart -> {
+                if (addToc) {
+                    addBackLink(mdp, bookmarkName);
+                    mdp.addObject(WmlAdapter.getPageBreak());
+                }
+                addToDocument(mdp, chartConfiguration, morphologicalChart);
+            });
+        }
     }
 
     private void addToDocument(MainDocumentPart mdp, ChartConfiguration chartConfiguration, MorphologicalChart morphologicalChart) {
