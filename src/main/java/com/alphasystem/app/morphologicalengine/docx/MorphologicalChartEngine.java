@@ -48,6 +48,7 @@ public class MorphologicalChartEngine extends DocumentAdapter {
             return;
         }
         final ChartConfiguration chartConfiguration = conjugationTemplate.getChartConfiguration();
+        final boolean addDetailedConjugation = !chartConfiguration.isOmitDetailedConjugation();
         final boolean addToc = !chartConfiguration.isOmitAbbreviatedConjugation() && !chartConfiguration.isOmitToc();
         final String tocHeading = "Table of Contents";
         final String bookmarkName = tocHeading.replaceAll(" ", "_").toLowerCase();
@@ -62,6 +63,8 @@ public class MorphologicalChartEngine extends DocumentAdapter {
             charts.stream().skip(1).forEach(morphologicalChart -> {
                 if (addToc) {
                     addBackLink(mdp, bookmarkName);
+                }
+                if (addDetailedConjugation) {
                     mdp.addObject(WmlAdapter.getPageBreak());
                 }
                 addToDocument(mdp, chartConfiguration, morphologicalChart);
