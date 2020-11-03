@@ -1,8 +1,12 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import java.nio.file.Path;
-
+import com.alphasystem.arabic.model.ArabicWord;
+import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.PageOrientation;
+import com.alphasystem.morphologicalengine.model.AbbreviatedRecord;
 import com.alphasystem.openxml.builder.wml.*;
+import com.alphasystem.openxml.builder.wml.table.TableAdapter;
+import com.alphasystem.util.IdGenerator;
 import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -10,41 +14,13 @@ import org.docx4j.openpackaging.parts.WordprocessingML.DocumentSettingsPart;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.*;
 
-import com.alphasystem.arabic.model.ArabicWord;
-import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
-import com.alphasystem.morphologicalanalysis.morphology.model.support.PageOrientation;
-import com.alphasystem.morphologicalengine.model.AbbreviatedRecord;
-import com.alphasystem.morphologicalengine.model.abbrvconj.ActiveLine;
-import com.alphasystem.openxml.builder.wml.table.TableAdapter;
-import com.alphasystem.util.IdGenerator;
+import java.nio.file.Path;
 
-import static com.alphasystem.arabic.model.ArabicLetterType.AIN;
-import static com.alphasystem.arabic.model.ArabicLetterType.ALIF;
-import static com.alphasystem.arabic.model.ArabicLetterType.ALIF_HAMZA_ABOVE;
-import static com.alphasystem.arabic.model.ArabicLetterType.DTHA;
-import static com.alphasystem.arabic.model.ArabicLetterType.FA;
-import static com.alphasystem.arabic.model.ArabicLetterType.HA;
-import static com.alphasystem.arabic.model.ArabicLetterType.LAM;
-import static com.alphasystem.arabic.model.ArabicLetterType.MEEM;
-import static com.alphasystem.arabic.model.ArabicLetterType.NOON;
-import static com.alphasystem.arabic.model.ArabicLetterType.RA;
-import static com.alphasystem.arabic.model.ArabicLetterType.SPACE;
-import static com.alphasystem.arabic.model.ArabicLetterType.WAW;
-import static com.alphasystem.arabic.model.ArabicLetterType.YA;
+import static com.alphasystem.arabic.model.ArabicLetterType.*;
 import static com.alphasystem.arabic.model.ArabicLetters.WORD_SPACE;
 import static com.alphasystem.arabic.model.ArabicWord.getWord;
-import static com.alphasystem.openxml.builder.wml.WmlAdapter.getNilBorders;
-import static com.alphasystem.openxml.builder.wml.WmlAdapter.getText;
-import static com.alphasystem.openxml.builder.wml.WmlAdapter.save;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.BOOLEAN_DEFAULT_TRUE_TRUE;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getColorBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getPBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getPPrBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRFontsBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRPrBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getStyleBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getTcPrBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlAdapter.*;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.*;
 import static com.alphasystem.util.IdGenerator.nextId;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.docx4j.wml.JcEnumeration.CENTER;
@@ -105,32 +81,6 @@ public final class WmlHelper {
         PPr ppr = getPPrBuilder().withPStyle(NO_SPACING_STYLE).getObject();
         return getPBuilder().withRsidR(nextId()).withRsidP(nextId())
                 .withRsidRDefault(nextId()).withPPr(ppr).getObject();
-    }
-
-    /**
-     * Gets the title of the conjugation. The title will be comprised of third
-     * person singular masculine past tense (space> third person singular
-     * masculine present tense.
-     *
-     * @param activeLine active line
-     * @return title {@link ArabicWord}
-     */
-    static String getTitleWord(ActiveLine activeLine) {
-        String pastTense = WORD_SPACE.toUnicode();
-        String presentTense = WORD_SPACE.toUnicode();
-        if (activeLine != null) {
-            String pastTenseRootWord = activeLine.getPastTense();
-            pastTense = (pastTenseRootWord == null) ? WORD_SPACE.toUnicode() : pastTenseRootWord;
-            if (pastTense == null) {
-                pastTense = WORD_SPACE.toUnicode();
-            }
-            String presentTenseRootWord = activeLine.getPresentTense();
-            presentTense = (presentTenseRootWord == null) ? WORD_SPACE.toUnicode() : presentTenseRootWord;
-            if (presentTense == null) {
-                presentTense = WORD_SPACE.toUnicode();
-            }
-        }
-        return pastTense + " " + presentTense;
     }
 
     static String getMultiWord(AbbreviatedRecord[] words) {
