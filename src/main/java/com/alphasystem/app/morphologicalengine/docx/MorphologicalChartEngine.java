@@ -9,13 +9,11 @@ import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 import com.alphasystem.openxml.builder.wml.TocGenerator;
 import com.alphasystem.openxml.builder.wml.WmlAdapter;
 import com.alphasystem.openxml.builder.wml.WmlBuilderFactory;
-import org.apache.commons.io.FilenameUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.P;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,19 +47,6 @@ public class MorphologicalChartEngine extends DocumentAdapter {
 
     public void createDocument(Path path) throws Docx4JException {
         WmlHelper.createDocument(path, this);
-        if (!chartConfiguration.isOmitAbbreviatedConjugation() && !chartConfiguration.isOmitDetailedConjugation()) {
-            ChartConfiguration ch = new ChartConfiguration(chartConfiguration)
-                    .omitDetailedConjugation(true)
-                    .omitToc(true);
-            WmlHelper.createDocument(toPath(path, "Abbreviated"),
-                    new MorphologicalChartEngine(abbreviatedConjugationFactory, detailedConjugationFactory, supplierFactory,
-                            new ConjugationTemplate(conjugationTemplate).withChartConfiguration(ch)));
-
-            ch = ch.omitAbbreviatedConjugation(true).omitDetailedConjugation(false);
-            WmlHelper.createDocument(toPath(path, "Detailed"),
-                    new MorphologicalChartEngine(abbreviatedConjugationFactory, detailedConjugationFactory, supplierFactory,
-                            new ConjugationTemplate(conjugationTemplate).withChartConfiguration(ch)));
-        }
     }
 
     @Override
@@ -128,23 +113,6 @@ public class MorphologicalChartEngine extends DocumentAdapter {
             morphologicalCharts.add(supplier.get());
         }
         return morphologicalCharts;
-    }
-
-    /**
-     * Convert given path to new path by appending given suffix in the name of file.
-     * <p>
-     * This method is used to convert given path to create abbreviated and detail conjugation files.
-     *
-     * @param src    source path
-     * @param suffix suffix to attach
-     * @return new path
-     */
-    private Path toPath(final Path src, final String suffix) {
-        final Path parent = src.getParent();
-        final String fileName = src.getFileName().toString();
-        final String baseName = FilenameUtils.getBaseName(fileName);
-        final String extension = FilenameUtils.getExtension(fileName);
-        return Paths.get(parent.toAbsolutePath().toString(), String.format("%s-%s.%s", baseName, suffix, extension));
     }
 
 }
