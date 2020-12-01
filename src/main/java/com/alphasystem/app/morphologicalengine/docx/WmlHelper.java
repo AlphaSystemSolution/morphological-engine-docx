@@ -1,40 +1,26 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
-import com.alphasystem.app.morphologicalengine.conjugation.model.abbrvconj.ActiveLine;
-import com.alphasystem.arabic.model.ArabicSupport;
 import com.alphasystem.arabic.model.ArabicWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
-import com.alphasystem.morphologicalanalysis.morphology.model.RootWord;
 import com.alphasystem.morphologicalanalysis.morphology.model.support.PageOrientation;
-import com.alphasystem.openxml.builder.wml.PPrBuilder;
-import com.alphasystem.openxml.builder.wml.StylesBuilder;
-import com.alphasystem.openxml.builder.wml.WmlBuilderFactory;
-import com.alphasystem.openxml.builder.wml.WmlPackageBuilder;
+import com.alphasystem.morphologicalengine.model.AbbreviatedRecord;
+import com.alphasystem.openxml.builder.wml.*;
 import com.alphasystem.openxml.builder.wml.table.TableAdapter;
 import com.alphasystem.util.IdGenerator;
+import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.DocumentSettingsPart;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.*;
 
 import java.nio.file.Path;
 
 import static com.alphasystem.arabic.model.ArabicLetterType.*;
 import static com.alphasystem.arabic.model.ArabicLetters.WORD_SPACE;
-import static com.alphasystem.arabic.model.ArabicWord.concatenateWithAnd;
-import static com.alphasystem.arabic.model.ArabicWord.concatenateWithSpace;
 import static com.alphasystem.arabic.model.ArabicWord.getWord;
-import static com.alphasystem.openxml.builder.wml.WmlAdapter.getNilBorders;
-import static com.alphasystem.openxml.builder.wml.WmlAdapter.getText;
-import static com.alphasystem.openxml.builder.wml.WmlAdapter.save;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.BOOLEAN_DEFAULT_TRUE_TRUE;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getColorBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getPBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getPPrBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRFontsBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getRPrBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getStyleBuilder;
-import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.getTcPrBuilder;
+import static com.alphasystem.openxml.builder.wml.WmlAdapter.*;
+import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.*;
 import static com.alphasystem.util.IdGenerator.nextId;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.docx4j.wml.JcEnumeration.CENTER;
@@ -57,7 +43,8 @@ public final class WmlHelper {
     static final ArabicWord FORBIDDING_PREFIX = getWord(WAW, NOON, HA, YA, SPACE, AIN, NOON, HA);
     static final ArabicWord ADVERB_PREFIX = getWord(WAW, ALIF, LAM, DTHA, RA, FA, SPACE, MEEM, NOON, HA);
 
-    public static void createDocument(Path path, ChartConfiguration chartConfiguration, DocumentAdapter documentAdapter) throws Docx4JException {
+    public static void createDocument(Path path, DocumentAdapter documentAdapter) throws Docx4JException {
+        final ChartConfiguration chartConfiguration = documentAdapter.getChartConfiguration();
         final String fontFamily = chartConfiguration.getArabicFontFamily();
         long normalFontSize = chartConfiguration.getArabicFontSize() * 2;
         long headingFontSize = chartConfiguration.getHeadingFontSize() * 2;
@@ -66,7 +53,19 @@ public final class WmlHelper {
 
         final WordprocessingMLPackage wordMLPackage = WmlPackageBuilder.createPackage(landscape).styles(
                 createStyles(fontFamily, normalFontSize, headingFontSize)).getPackage();
-        documentAdapter.buildDocument(wordMLPackage.getMainDocumentPart());
+        final MainDocumentPart mainDocumentPart = wordMLPackage.getMainDocumentPart();
+
+        // Hack to set Arabic font for TOC styles
+        final Style toc1 = mainDocumentPart.getStyleDefinitionsPart().getStyleById("TOC1");
+        if (toc1 != null) {
+            final RFonts rFonts = getRFontsBuilder().withCs(fontFamily).withAscii(fontFamily).withHAnsi(fontFamily)
+                    .withEastAsiaTheme(STTheme.MAJOR_EAST_ASIA).getObject();
+            final RPrBuilder rPrBuilder = getRPrBuilder(toc1.getRPr()).withRFonts(rFonts);
+            toc1.setRPr(rPrBuilder.getObject());
+        }
+
+        updateDocumentCompatibility(mainDocumentPart);
+        documentAdapter.buildDocument(mainDocumentPart);
         save(path.toFile(), wordMLPackage);
     }
 
@@ -83,50 +82,24 @@ public final class WmlHelper {
                 .withRsidRDefault(nextId()).withPPr(ppr).getObject();
     }
 
-    /**
-     * Gets the title of the conjugation. The title will be comprised of third
-     * person singular masculine past tense (space> third person singular
-     * masculine present tense.
-     *
-     * @param activeLine active line
-     * @return title {@link ArabicWord}
-     */
-    static ArabicWord getTitleWord(ActiveLine activeLine) {
-        ArabicWord pastTense = WORD_SPACE;
-        ArabicWord presentTense = WORD_SPACE;
-        if (activeLine != null) {
-            RootWord pastTenseRootWord = activeLine.getPastTense();
-            pastTense = (pastTenseRootWord == null) ? WORD_SPACE : pastTenseRootWord.getRootWord();
-            if (pastTense == null) {
-                pastTense = WORD_SPACE;
-            }
-            RootWord presentTenseRootWord = activeLine.getPresentTense();
-            presentTense = (presentTenseRootWord == null) ? WORD_SPACE : presentTenseRootWord.getRootWord();
-            if (presentTense == null) {
-                presentTense = WORD_SPACE;
-            }
-        }
-        return concatenateWithSpace(pastTense, presentTense);
-    }
-
-    static ArabicWord getMultiWord(RootWord[] words) {
-        ArabicWord w = WORD_SPACE;
+    static String getMultiWord(AbbreviatedRecord[] words) {
+        StringBuilder builder = new StringBuilder();
         if (isNotEmpty(words)) {
-            w = words[0].toLabel();
+            builder.append(words[0].getLabel());
             for (int i = 1; i < words.length; i++) {
-                w = concatenateWithAnd(w, words[i].toLabel());
+                builder.append(" ").append(WAW.toUnicode()).append(" ").append(words[i].getLabel());
             }
         }
-        return w;
+        return builder.toString();
     }
 
-    static P getArabicTextP(ArabicSupport value) {
-        return getArabicTextP(value, ARABIC_TABLE_CENTER_STYLE);
+    static P getArabicTextP(String value) {
+        return getArabicTextPWithStyle(value, ARABIC_TABLE_CENTER_STYLE);
     }
 
-    private static P getArabicTextP(ArabicWord prefix, ArabicSupport value, String pStyle, String prefixStyle) {
+    private static P getArabicTextP(ArabicWord prefix, String value, String pStyle, String prefixStyle) {
         if (prefix == null) {
-            return getArabicTextP(value, pStyle);
+            return getArabicTextPWithStyle(value, pStyle);
         }
         String rsidr = nextId();
         PPr ppr = getPPrBuilder().withPStyle(pStyle).getObject();
@@ -138,8 +111,8 @@ public final class WmlHelper {
         String id = nextId();
         R prefixRun = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
 
-        ArabicWord word = (value == null) ? WORD_SPACE : value.toLabel();
-        text = getText(word.toUnicode(), null);
+        String word = (value == null) ? WORD_SPACE.toUnicode() : value;
+        text = getText(word, null);
         id = nextId();
         rFonts = getRFontsBuilder().withHint(CS).getObject();
         rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
@@ -150,17 +123,17 @@ public final class WmlHelper {
                 .getObject();
     }
 
-    static P getArabicTextP(ArabicWord prefix, ArabicSupport value) {
+    static P getArabicTextP(ArabicWord prefix, String value) {
         return getArabicTextP(prefix, value, ARABIC_TABLE_CENTER_STYLE, ARABIC_PREFIX_STYLE);
     }
 
-    static P getArabicTextP(ArabicSupport value, String pStyle) {
+    static P getArabicTextPWithStyle(String value, String pStyle) {
         String rsidr = nextId();
         PPr ppr = getPPrBuilder().withPStyle(pStyle).getObject();
         final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
         RPr rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
-        ArabicWord word = (value == null) ? WORD_SPACE : value.toLabel();
-        Text text = getText(word.toUnicode(), null);
+        String word = (value == null) ? WORD_SPACE.toUnicode() : value;
+        Text text = getText(word, null);
         String id = nextId();
         R r = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
         return getPBuilder().withRsidR(rsidr).withRsidRDefault(rsidr).withRsidRPr(id).withRsidP(id).withPPr(ppr).addContent(r)
@@ -254,14 +227,15 @@ public final class WmlHelper {
     }
 
     private static Style createArabicTocStyle(String family) {
-        CTTabStop tab = WmlBuilderFactory.getCTTabStopBuilder().withVal(STTabJc.RIGHT).withLeader(STTabTlc.DOT)
+        final CTTabStop tab = WmlBuilderFactory.getCTTabStopBuilder().withVal(STTabJc.RIGHT).withLeader(STTabTlc.DOT)
                 .withPos(9017L).getObject();
-        Tabs tabs = WmlBuilderFactory.getTabsBuilder().addTab(tab).getObject();
-        PPr ppr = getPPrBuilder().withTabs(tabs).getObject();
-        RFonts rFonts = getRFontsBuilder().withCs(family).getObject();
-        RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
+        final Tabs tabs = WmlBuilderFactory.getTabsBuilder().addTab(tab).getObject();
+        final PPr ppr = getPPrBuilder().withTabs(tabs).getObject();
+        final RFonts rFonts = getRFontsBuilder().withCs(family).withAscii(family).withHAnsi(family)
+                .withEastAsiaTheme(STTheme.MAJOR_EAST_ASIA).getObject();
+        final RPr rpr = getRPrBuilder().withRFonts(rFonts).getObject();
         return getStyleBuilder().withType("paragraph").withStyleId("TOCArabic").withCustomStyle(true)
-                .withName("TOC Arabic").withBasedOn("TOC1").withQFormat(true).withRsid(IdGenerator.nextId())
+                .withName("TOCArabic").withBasedOn("TOC1").withQFormat(true).withRsid(IdGenerator.nextId())
                 .withPPr(ppr).withRPr(rpr).getObject();
     }
 
@@ -281,5 +255,17 @@ public final class WmlHelper {
         return getStyleBuilder().withType("paragraph").withStyleId("Arabic-Prefix").withCustomStyle(true)
                 .withName("Arabic-Prefix").withLink("Arabic-PrefixChar").withBasedOn("Arabic-Table-Center")
                 .withRsid("005B3CB5").withRPr(rpr).getObject();
+    }
+
+    private static void updateDocumentCompatibility(MainDocumentPart mainDocumentPart) {
+        try {
+            final DocumentSettingsPart dsp = mainDocumentPart.getDocumentSettingsPart(true);
+            final CTCompat compat = Context.getWmlObjectFactory().createCTCompat();
+            compat.setCompatSetting("compatibilityMode", "http://schemas.microsoft.com/office/word", "15");
+            dsp.getContents().setCompat(compat);
+        } catch (Exception ex) {
+            // ignore
+            ex.printStackTrace();
+        }
     }
 }

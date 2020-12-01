@@ -3,11 +3,9 @@ package com.alphasystem.app.morphologicalengine.docx;
 import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationBuilder;
 import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationHelper;
 import com.alphasystem.app.morphologicalengine.conjugation.builder.ConjugationRoots;
-import com.alphasystem.app.morphologicalengine.conjugation.model.MorphologicalChart;
-import com.alphasystem.app.morphologicalengine.guice.GuiceSupport;
-import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
 import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
+import com.alphasystem.morphologicalengine.model.MorphologicalChart;
 
 import java.util.function.Supplier;
 
@@ -17,13 +15,11 @@ import java.util.function.Supplier;
 public class MorphologicalChartSupplier implements Supplier<MorphologicalChart> {
 
     private final ConjugationBuilder conjugationBuilder;
-    private final ChartConfiguration chartConfiguration;
     private final ConjugationData conjugationData;
 
-    public MorphologicalChartSupplier(ChartConfiguration chartConfiguration, ConjugationData conjugationData) {
-        this.chartConfiguration = chartConfiguration;
+    MorphologicalChartSupplier(ConjugationData conjugationData, ConjugationBuilder conjugationBuilder) {
         this.conjugationData = conjugationData;
-        this.conjugationBuilder = GuiceSupport.getInstance().getConjugationBuilder();
+        this.conjugationBuilder = conjugationBuilder;
     }
 
     private MorphologicalChart createChart() {
@@ -35,10 +31,7 @@ public class MorphologicalChartSupplier implements Supplier<MorphologicalChart> 
             return null;
         }
         final ConjugationRoots conjugationRoots = ConjugationHelper.getConjugationRoots(conjugationData);
-        conjugationRoots.setChartConfiguration(chartConfiguration);
-        conjugationRoots.setConjugationConfiguration(conjugationData.getConfiguration());
-        return conjugationBuilder.doConjugation(conjugationRoots, rootLetters.getFirstRadical(), rootLetters.getSecondRadical(),
-                rootLetters.getThirdRadical(), rootLetters.getFourthRadical());
+        return conjugationBuilder.doConjugation(conjugationData.getId(), conjugationRoots);
     }
 
     @Override
