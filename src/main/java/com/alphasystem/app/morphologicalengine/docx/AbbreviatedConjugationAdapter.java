@@ -1,5 +1,6 @@
 package com.alphasystem.app.morphologicalengine.docx;
 
+import org.apache.commons.lang3.StringUtils;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
 import org.docx4j.wml.ParaRPr;
@@ -26,6 +27,7 @@ import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.addSeparato
 import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getArabicTextP;
 import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getMultiWord;
 import static com.alphasystem.app.morphologicalengine.docx.WmlHelper.getNilBorderColumnProperties;
+import static com.alphasystem.openxml.builder.wml.WmlAdapter.getEmptyParaNoSpacing;
 import static com.alphasystem.openxml.builder.wml.WmlAdapter.getText;
 import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.BOOLEAN_DEFAULT_TRUE_TRUE;
 import static com.alphasystem.openxml.builder.wml.WmlBuilderFactory.JC_CENTER;
@@ -45,147 +47,165 @@ import static org.docx4j.wml.STHint.CS;
  */
 public final class AbbreviatedConjugationAdapter extends ChartAdapter {
 
-	private final ChartConfiguration chartConfiguration;
-	private final AbbreviatedConjugation[] abbreviatedConjugations;
-	private final TableAdapter tableAdapter;
+    private final ChartConfiguration chartConfiguration;
+    private final AbbreviatedConjugation[] abbreviatedConjugations;
+    private final TableAdapter tableAdapter;
 
-	AbbreviatedConjugationAdapter(ChartConfiguration chartConfiguration, AbbreviatedConjugation... abbreviatedConjugations) {
-		this.chartConfiguration = (chartConfiguration == null) ? new ChartConfiguration() : chartConfiguration;
-		this.abbreviatedConjugations = isEmpty(abbreviatedConjugations) ? new AbbreviatedConjugation[0] : abbreviatedConjugations;
-		this.tableAdapter = new TableAdapter().startTable(25.0, 25.0, 25.0, 25.0);
-	}
+    AbbreviatedConjugationAdapter(ChartConfiguration chartConfiguration, AbbreviatedConjugation... abbreviatedConjugations) {
+        this.chartConfiguration = (chartConfiguration == null) ? new ChartConfiguration() : chartConfiguration;
+        this.abbreviatedConjugations = isEmpty(abbreviatedConjugations) ? new AbbreviatedConjugation[0] : abbreviatedConjugations;
+        this.tableAdapter = new TableAdapter().startTable(25.0, 25.0, 25.0, 25.0);
+    }
 
-	@Override
-	public ChartConfiguration getChartConfiguration() {
-		return chartConfiguration;
-	}
+    @Override
+    public ChartConfiguration getChartConfiguration() {
+        return chartConfiguration;
+    }
 
-	@Override
-	protected Tbl getChart() {
-		for (AbbreviatedConjugation abbreviatedConjugation : abbreviatedConjugations) {
-			if (!chartConfiguration.isOmitTitle()) {
-				addTitleRow(abbreviatedConjugation);
-			}
-			if (!chartConfiguration.isOmitHeader()) {
-				addHeaderRow(abbreviatedConjugation.getConjugationHeader());
-			}
-			addActiveLineRow(abbreviatedConjugation);
-			if (abbreviatedConjugation.hasPassiveLine()) {
-				addPassiveLine(abbreviatedConjugation);
-			}
-			addCommandLine(abbreviatedConjugation);
-			addAdverbLine(abbreviatedConjugation);
-			addSeparatorRow(tableAdapter, 4);
-		}
+    @Override
+    protected Tbl getChart() {
+        for (AbbreviatedConjugation abbreviatedConjugation : abbreviatedConjugations) {
+            if (!chartConfiguration.isOmitTitle()) {
+                addTitleRow(abbreviatedConjugation);
+            }
+            if (!chartConfiguration.isOmitHeader()) {
+                addHeaderRow(abbreviatedConjugation.getConjugationHeader());
+            }
+            addActiveLineRow(abbreviatedConjugation);
+            if (abbreviatedConjugation.hasPassiveLine()) {
+                addPassiveLine(abbreviatedConjugation);
+            }
+            addCommandLine(abbreviatedConjugation);
+            addAdverbLine(abbreviatedConjugation);
+            addSeparatorRow(tableAdapter, 4);
+        }
 
-		return tableAdapter.getTable();
-	}
+        return tableAdapter.getTable();
+    }
 
-	private void addTitleRow(AbbreviatedConjugation abbreviatedConjugation) {
-		tableAdapter.startRow().addColumn(0, 4, getNilBorderColumnProperties(), createTitlePara(abbreviatedConjugation)).endRow();
-	}
+    private void addTitleRow(AbbreviatedConjugation abbreviatedConjugation) {
+        final P titlePara = createTitlePara(abbreviatedConjugation);
+        tableAdapter
+                .startRow()
+                .addColumn(0, 4, getNilBorderColumnProperties(), titlePara)
+                .endRow();
 
-	private P createTitlePara(AbbreviatedConjugation abbreviatedConjugation) {
-		final String id = nextId();
+        // if there is no header and if there is translation then display translation
+        final String translation = abbreviatedConjugation.getConjugationHeader().getTranslation();
+        if (chartConfiguration.isOmitHeader() && StringUtils.isNotBlank(translation)) {
+            final P translationPara = getTranslationPara(nextId(), nextId(), translation);
+            tableAdapter
+                    .startRow()
+                    .addColumn(0, 4, getNilBorderColumnProperties(), translationPara)
+                    .endRow();
+            tableAdapter
+                    .startRow()
+                    .addColumn(0, 4, getNilBorderColumnProperties(), getEmptyParaNoSpacing())
+                    .endRow();
+        }
+    }
 
-		final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
-		final RPr rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
-		final ConjugationHeader conjugationHeader = abbreviatedConjugation.getConjugationHeader();
-		String title = conjugationHeader.getTitle();
-		final Text text = getText(title);
-		final R r = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
+    private P createTitlePara(AbbreviatedConjugation abbreviatedConjugation) {
+        final String id = nextId();
 
-		final ParaRPr paraRPr = getParaRPrBuilder().getObject();
-		PPr ppr = getPPrBuilder().withPStyle(ARABIC_HEADING_STYLE).withBidi(BOOLEAN_DEFAULT_TRUE_TRUE).withRPr(paraRPr).getObject();
+        final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
+        final RPr rpr = getRPrBuilder().withRFonts(rFonts).withRtl(BOOLEAN_DEFAULT_TRUE_TRUE).getObject();
+        final ConjugationHeader conjugationHeader = abbreviatedConjugation.getConjugationHeader();
+        String title = conjugationHeader.getTitle();
+        final Text text = getText(title);
+        final R r = getRBuilder().withRsidRPr(id).withRPr(rpr).addContent(text).getObject();
 
-		final PBuilder pBuilder = getPBuilder().withParaId(id).withRsidP(id).withRsidR(id).withRsidRDefault(id).withRsidRPr(id)
-				.withPPr(ppr).addContent(r);
-		final P p = pBuilder.getObject();
-		WmlAdapter.addBookMark(p, id);
-		return p;
-	}
+        final ParaRPr paraRPr = getParaRPrBuilder().getObject();
+        PPr ppr = getPPrBuilder().withPStyle(ARABIC_HEADING_STYLE).withBidi(BOOLEAN_DEFAULT_TRUE_TRUE).withRPr(paraRPr).getObject();
 
-	private void addHeaderRow(ConjugationHeader conjugationHeader) {
-		String rsidR = nextId();
-		String rsidP = nextId();
+        final PBuilder pBuilder = getPBuilder().withParaId(id).withRsidP(id).withRsidR(id).withRsidRDefault(id).withRsidRPr(id)
+                .withPPr(ppr).addContent(r);
+        final P p = pBuilder.getObject();
+        WmlAdapter.addBookMark(p, id);
+        return p;
+    }
 
-		// translation
-		P translationPara = getTranslationPara(rsidR, rsidP, conjugationHeader.getTranslation());
+    private void addHeaderRow(ConjugationHeader conjugationHeader) {
+        String rsidR = nextId();
+        String rsidP = nextId();
 
-		// second column paras
-		String rsidRpr = nextId();
-		P labelP1 = getHeaderLabelPara(rsidR, rsidRpr, rsidP, conjugationHeader.getTypeLabel1());
-		P labelP2 = getHeaderLabelPara(rsidR, rsidRpr, rsidP, conjugationHeader.getTypeLabel2());
-		P labelP3 = getHeaderLabelPara(rsidR, rsidRpr, rsidP, conjugationHeader.getTypeLabel3());
+        // translation
+        P translationPara = getTranslationPara(rsidR, rsidP, conjugationHeader.getTranslation());
 
-		tableAdapter.startRow()
-				.addColumn(0, 2, null, WmlAdapter.getEmptyPara(), translationPara)
-				.addColumn(2, 2, null, labelP1, labelP2, labelP3).endRow();
-	}
+        // second column paras
+        String rsidRpr = nextId();
+        P labelP1 = getHeaderLabelPara(rsidR, rsidRpr, rsidP, conjugationHeader.getTypeLabel1());
+        P labelP2 = getHeaderLabelPara(rsidR, rsidRpr, rsidP, conjugationHeader.getTypeLabel2());
+        P labelP3 = getHeaderLabelPara(rsidR, rsidRpr, rsidP, conjugationHeader.getTypeLabel3());
 
-	private P getTranslationPara(String rsidR, String rsidP, String translation) {
-		translation = (translation == null) ? "" : format("%s", translation);
-		Text text = getText(translation, null);
-		final String translationFontFamily = chartConfiguration.getTranslationFontFamily();
-		RFonts rFonts = getRFontsBuilder().withAscii(translationFontFamily).withHAnsi(translationFontFamily).getObject();
-		final long translationFontSize = chartConfiguration.getTranslationFontSize() * 2;
-		RPr rpr = getRPrBuilder().withRFonts(rFonts).withSz(translationFontSize).withSzCs(translationFontSize).getObject();
-		R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text).getObject();
-		String rsidRpr = nextId();
-		ParaRPr prpr = getParaRPrBuilder().withRFonts(rFonts).getObject();
-		PPr ppr = getPPrBuilder().withJc(JC_CENTER).withRPr(prpr).getObject();
-		return getPBuilder().withRsidR(rsidR).withRsidRDefault(rsidR).withRsidP(rsidP).withRsidRPr(rsidRpr).withPPr(ppr)
-				.addContent(r).getObject();
-	}
+        tableAdapter.startRow()
+                .addColumn(0, 2, null, WmlAdapter.getEmptyPara(), translationPara)
+                .addColumn(2, 2, null, labelP1, labelP2, labelP3).endRow();
+    }
 
-	private P getHeaderLabelPara(String rsidR, String rsidRpr, String rsidP, String label) {
-		final long arabicFontSize = chartConfiguration.getArabicFontSize() * 2;
-		ParaRPr prpr = getParaRPrBuilder().withSz(arabicFontSize).withSzCs(arabicFontSize).getObject();
-		PPr ppr = getPPrBuilder().withPStyle(ARABIC_NORMAL_STYLE).withBidi(BOOLEAN_DEFAULT_TRUE_TRUE).withRPr(prpr).getObject();
+    private P getTranslationPara(String rsidR, String rsidP, String translation) {
+        translation = (translation == null) ? "" : format("%s", translation);
+        Text text = getText(translation, null);
+        final String translationFontFamily = chartConfiguration.getTranslationFontFamily();
+        RFonts rFonts = getRFontsBuilder().withAscii(translationFontFamily).withHAnsi(translationFontFamily).getObject();
+        final long translationFontSize = chartConfiguration.getTranslationFontSize() * 2;
+        RPr rpr = getRPrBuilder().withRFonts(rFonts).withSz(translationFontSize).withSzCs(translationFontSize).getObject();
+        R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text).getObject();
+        String rsidRpr = nextId();
+        ParaRPr prpr = getParaRPrBuilder().withRFonts(rFonts).getObject();
+        PPr ppr = getPPrBuilder().withJc(JC_CENTER).withRPr(prpr).getObject();
+        return getPBuilder().withRsidR(rsidR).withRsidRDefault(rsidR).withRsidP(rsidP).withRsidRPr(rsidRpr).withPPr(ppr)
+                .addContent(r).getObject();
+    }
 
-		Text text = getText(label, null);
-		final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
-		RPr rpr = getRPrBuilder().withRFonts(rFonts).withSz(arabicFontSize).withSzCs(arabicFontSize).getObject();
-		R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text).getObject();
+    private P getHeaderLabelPara(String rsidR, String rsidRpr, String rsidP, String label) {
+        final long arabicFontSize = chartConfiguration.getArabicFontSize() * 2;
+        ParaRPr prpr = getParaRPrBuilder().withSz(arabicFontSize).withSzCs(arabicFontSize).getObject();
+        PPr ppr = getPPrBuilder().withPStyle(ARABIC_NORMAL_STYLE).withBidi(BOOLEAN_DEFAULT_TRUE_TRUE).withRPr(prpr).getObject();
 
-		return getPBuilder().withRsidR(rsidR).withRsidRDefault(rsidR).withRsidP(rsidP).withRsidRPr(rsidRpr).withPPr(ppr)
-				.addContent(r).getObject();
-	}
+        Text text = getText(label, null);
+        final RFonts rFonts = getRFontsBuilder().withHint(CS).getObject();
+        RPr rpr = getRPrBuilder().withRFonts(rFonts).withSz(arabicFontSize).withSzCs(arabicFontSize).getObject();
+        R r = getRBuilder().withRsidR(rsidR).withRPr(rpr).addContent(text).getObject();
 
-	private void addActiveLineRow(AbbreviatedConjugation abbreviatedConjugation) {
-		tableAdapter
-				.startRow()
-				.addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getActiveParticipleMasculine().getLabel()))
-				.addColumn(1, getArabicTextP(getMultiWord(abbreviatedConjugation.getVerbalNouns())))
-				.addColumn(2, getArabicTextP(abbreviatedConjugation.getPresentTense().getLabel()))
-				.addColumn(3, getArabicTextP(abbreviatedConjugation.getPastTense().getLabel()))
-				.endRow();
-	}
+        return getPBuilder().withRsidR(rsidR).withRsidRDefault(rsidR).withRsidP(rsidP).withRsidRPr(rsidRpr).withPPr(ppr)
+                .addContent(r).getObject();
+    }
 
-	private void addPassiveLine(AbbreviatedConjugation abbreviatedConjugation) {
-		tableAdapter
-				.startRow()
-				.addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getPassiveParticipleMasculine().getLabel()))
-				.addColumn(1, getArabicTextP(getMultiWord(abbreviatedConjugation.getVerbalNouns())))
-				.addColumn(2, getArabicTextP(abbreviatedConjugation.getPresentPassiveTense().getLabel()))
-				.addColumn(3, getArabicTextP(abbreviatedConjugation.getPastPassiveTense().getLabel()))
-				.endRow();
-	}
+    private void addActiveLineRow(AbbreviatedConjugation abbreviatedConjugation) {
+        tableAdapter
+                .startRow()
+                .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getActiveParticipleMasculine().getLabel()))
+                .addColumn(1, getArabicTextP(getMultiWord(abbreviatedConjugation.getVerbalNouns())))
+                .addColumn(2, getArabicTextP(abbreviatedConjugation.getPresentTense().getLabel()))
+                .addColumn(3, getArabicTextP(abbreviatedConjugation.getPastTense().getLabel()))
+                .endRow();
+    }
 
-	private void addCommandLine(AbbreviatedConjugation abbreviatedConjugation) {
-		tableAdapter
-				.startRow()
-				.addColumn(0, 2, null, getArabicTextP(FORBIDDING_PREFIX,
-						abbreviatedConjugation.getForbidding().getLabel()))
-				.addColumn(2, 2, null, getArabicTextP(COMMAND_PREFIX,
-						abbreviatedConjugation.getImperative().getLabel())).endRow();
-	}
+    private void addPassiveLine(AbbreviatedConjugation abbreviatedConjugation) {
+        tableAdapter
+                .startRow()
+                .addColumn(0, getArabicTextP(PARTICIPLE_PREFIX, abbreviatedConjugation.getPassiveParticipleMasculine().getLabel()))
+                .addColumn(1, getArabicTextP(getMultiWord(abbreviatedConjugation.getVerbalNouns())))
+                .addColumn(2, getArabicTextP(abbreviatedConjugation.getPresentPassiveTense().getLabel()))
+                .addColumn(3, getArabicTextP(abbreviatedConjugation.getPastPassiveTense().getLabel()))
+                .endRow();
+    }
 
-	private void addAdverbLine(AbbreviatedConjugation abbreviatedConjugation) {
-		tableAdapter
-				.startRow()
-				.addColumn(0, 4, null, getArabicTextP(ADVERB_PREFIX, getMultiWord(abbreviatedConjugation.getAdverbs())))
-				.endRow();
-	}
+    private void addCommandLine(AbbreviatedConjugation abbreviatedConjugation) {
+        tableAdapter
+                .startRow()
+                .addColumn(0, 2, null, getArabicTextP(FORBIDDING_PREFIX,
+                        abbreviatedConjugation.getForbidding().getLabel()))
+                .addColumn(2, 2, null, getArabicTextP(COMMAND_PREFIX,
+                        abbreviatedConjugation.getImperative().getLabel())).endRow();
+    }
+
+    private void addAdverbLine(AbbreviatedConjugation abbreviatedConjugation) {
+        tableAdapter
+                .startRow()
+                .addColumn(0, 4, null, getArabicTextP(ADVERB_PREFIX, getMultiWord(abbreviatedConjugation.getAdverbs())))
+                .endRow();
+    }
 
 }

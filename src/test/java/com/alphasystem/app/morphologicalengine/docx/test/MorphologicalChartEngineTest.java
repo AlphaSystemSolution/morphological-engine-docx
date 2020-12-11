@@ -88,7 +88,7 @@ public class MorphologicalChartEngineTest extends AbstractTestNGSpringContextTes
 
     @Test(dependsOnMethods = {"runConjugationBuilder"})
     public void buildAbbreviatedConjugations() {
-        final ChartConfiguration chartConfiguration = getChartConfiguration().omitToc(true).omitDetailedConjugation(true);
+        final ChartConfiguration chartConfiguration = getChartConfiguration().omitToc(true).omitHeader(true).omitDetailedConjugation(true);
         final ConjugationTemplate conjugationTemplate = getConjugationTemplate(chartConfiguration);
         MorphologicalChartEngine morphologicalChartEngine = morphologicalChartEngineFactory.createMorphologicalChartEngine(conjugationTemplate);
         final Path path = get(parentDocDir.toString(), "abbreviated-conjugations.docx");
